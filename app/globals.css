@@ -1,26 +1,141 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #070b14;
+  color: #e8ecf4;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+/* ── Blobs de fondo flotantes ── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.35;
+  animation: flotar 18s ease-in-out infinite alternate;
+}
+@keyframes flotar {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(60px, -50px) scale(1.15); }
+}
+
+/* ── Botón con borde de gradiente animado (estilo uiverse.io) ── */
+.btn-glow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee, #ec4899, #8b5cf6);
+  background-size: 300% 100%;
+  cursor: pointer;
+  text-decoration: none;
+  animation: deslizar-borde 6s linear infinite;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.btn-glow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 26px;
+  border-radius: 999px;
+  background: #0b1020;
+  color: #e8ecf4;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: var(--font-space-grotesk), sans-serif;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  transition: background 0.25s ease;
+}
+.btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.55), 0 0 48px rgba(34, 211, 238, 0.25);
+}
+.btn-glow:hover > span { background: transparent; }
+.btn-glow:active { transform: translateY(0) scale(0.98); }
+.btn-glow:disabled { opacity: 0.6; cursor: wait; }
+
+@keyframes deslizar-borde {
+  to { background-position: 300% 0; }
+}
+
+/* ── Línea de luz superior en tarjetas glass ── */
+.beam-top {
+  position: relative;
+  overflow: hidden;
+}
+.beam-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  width: 70%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, transparent);
+}
+
+/* ── Loader tipo uiverse ── */
+.loader-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 15%, #8b5cf6, #22d3ee);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  animation: girar 0.9s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* ── Punto que pulsa (badge del hero) ── */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  animation: pulso 2s infinite;
+}
+@keyframes pulso {
+  70%  { box-shadow: 0 0 0 9px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* ── Paso actual de la línea de tiempo ── */
+.paso-actual {
+  box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.25), 0 0 20px rgba(34, 211, 238, 0.5);
+  animation: pulso-paso 2s infinite;
+}
+@keyframes pulso-paso {
+  50% { box-shadow: 0 0 0 9px rgba(139, 92, 246, 0.12), 0 0 26px rgba(34, 211, 238, 0.6); }
+}
+
+/* ── Animación de aparición ── */
+.aparecer {
+  animation: aparecer-arriba 0.45s ease;
+}
+@keyframes aparecer-arriba {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Sacudida para errores ── */
+.sacudir { animation: sacudir 0.4s ease; }
+@keyframes sacudir {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
