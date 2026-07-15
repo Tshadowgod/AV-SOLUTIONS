@@ -1,4 +1,8 @@
 // Íconos SVG de Lucide (https://lucide.dev — licencia ISC, uso libre)
+// + logo propio de AV SOLUTIONS
+
+import Image from "next/image";
+import logoBlanco from "@/public/logo-blanco.png";
 
 type Props = { className?: string };
 
@@ -91,22 +95,13 @@ export function IconoCandado({ className = "w-5 h-5" }: Props) {
   );
 }
 
-export function LogoAV({ className = "w-7 h-7" }: Props) {
+export function LogoAV({ className = "w-8 h-8" }: Props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <defs>
-        <linearGradient id="grad-logo" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#8b5cf6" />
-          <stop offset="1" stopColor="#22d3ee" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-        stroke="url(#grad-logo)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Image
+      src={logoBlanco}
+      alt="Logo AV SOLUTIONS"
+      className={`${className} object-contain`}
+      priority
+    />
   );
 }
