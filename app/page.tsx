@@ -194,8 +194,8 @@ export default function Inicio() {
             {
               icono: <IconoChat />,
               titulo: "WhatsApp",
-              detalle: "+591 000 00000",
-              href: "https://wa.me/59100000000",
+              detalle: "+591 65073163",
+              href: "https://wa.me/59165073163",
             },
             { icono: <IconoPin />, titulo: "Taller", detalle: "Av. Ejemplo #123, tu ciudad" },
             { icono: <IconoReloj />, titulo: "Horario", detalle: "Lun a Sáb · 9:00 – 19:00" },
