@@ -197,8 +197,8 @@ export default function Inicio() {
               detalle: "+591 65073163",
               href: "https://wa.me/59165073163",
             },
-            { icono: <IconoPin />, titulo: "Taller", detalle: "Av. Ejemplo #123, tu ciudad" },
-            { icono: <IconoReloj />, titulo: "Horario", detalle: "Lun a Sáb · 9:00 – 19:00" },
+            { icono: <IconoPin />, titulo: "Taller", detalle: "Radial 10, calle Godofredo Núñez" },
+            { icono: <IconoReloj />, titulo: "Horario", detalle: "Emergencias 24/7" },
           ].map((c) => {
             const contenido = (
               <>
