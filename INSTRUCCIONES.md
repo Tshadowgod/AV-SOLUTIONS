@@ -1,46 +1,30 @@
-# 🔔 Activar el aviso por WhatsApp de las cotizaciones
+# 📋 AV SOLUTIONS — Guía rápida
 
-Cuando un cliente envía una cotización desde la página, tu sitio puede
-mandarte un mensaje automático a **tu** WhatsApp con los datos. Usa un
-servicio gratuito llamado **CallMeBot**. Actívalo una sola vez así:
+## 🔔 Cotizaciones por WhatsApp (¡ya funciona, sin configurar nada!)
 
-## Paso 1 — Autoriza tu número (desde tu teléfono)
+Cuando un cliente llena el formulario de cotización y pulsa **Enviar**:
 
-1. Agrega este número a tus contactos: **+34 644 84 71 89**
-   (es el bot de CallMeBot).
-2. Desde WhatsApp, envíale este mensaje exacto a ese contacto:
+1. La cotización se **guarda en tu panel** (`/admin`) para que quede registrada.
+2. Se abre **WhatsApp** en el teléfono/computadora del cliente con un mensaje
+   ya escrito hacia **tu número** (`+591 65073163`), con todos los datos:
+   equipo, modelo, problema y su nombre.
+3. El cliente solo pulsa **Enviar** en WhatsApp y te llega el mensaje directo.
 
-   ```
-   I allow callmebot to send me messages
-   ```
+Así puedes responderle de inmediato desde tu WhatsApp. No hace falta ninguna
+clave ni servicio externo.
 
-3. Te responderá con tu **API key** (una clave tipo `123456`).
-   Guárdala.
+> **¿Quieres cambiar el número que recibe las cotizaciones?**
+> Está en el archivo `components/Cotizacion.tsx`, en la línea
+> `const WHATSAPP_NEGOCIO = "59165073163";` (código de país + número, sin «+»).
 
-> Si no responde en 2 minutos, espera un poco y reintenta; a veces
-> el bot tarda.
+## 🔐 Panel de administración
 
-## Paso 2 — Pon la clave en la web (dímela y yo la configuro, o hazlo tú)
+- Entra en `/admin`. La contraseña está en la variable `ADMIN_PASSWORD`
+  (cámbiala en Vercel → Settings → Environment Variables cuando quieras).
+- Ahí ves las **órdenes** y las **cotizaciones recibidas**.
+- Botón **«🔄 Convertir a orden»**: pasa una cotización a órdenes registradas.
 
-En Vercel:
-1. Entra a vercel.com → proyecto **av-solutions** → **Settings** →
-   **Environment Variables**.
-2. Crea una variable:
-   - **Name:** `CALLMEBOT_APIKEY`
-   - **Value:** la clave que te dio CallMeBot
-   - Marca **Production**.
-3. También confirma que exista `WHATSAPP_NOTIFY_PHONE` con valor
-   `59165073163` (tu número con código de país, sin el «+»).
-4. Vuelve a desplegar (Deployments → ⋯ → Redeploy) o dime y lo hago yo.
+## 🗄️ Datos técnicos
 
-¡Listo! Desde ese momento, cada cotización te llegará como mensaje de
-WhatsApp con el nombre del cliente, el equipo, el problema y su número.
-
----
-
-## Otros datos útiles
-
-- **Panel de administración:** `/admin` — contraseña en la variable
-  `ADMIN_PASSWORD` (cámbiala en Vercel cuando quieras).
-- **Base de datos:** Neon PostgreSQL. Tabla `cotizaciones` y `ordenes`.
-- **Convertir cotización en orden:** botón «🔄 Convertir a orden» en el panel.
+- **Base de datos:** Neon PostgreSQL (tablas `ordenes` y `cotizaciones`).
+- **Publicar cambios:** cada vez que se sube algo a GitHub, Vercel lo despliega solo.

@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { IconoLaptop, IconoMonitor } from "@/components/Iconos";
+import { IconoLaptop, IconoMonitor, IconoChat } from "@/components/Iconos";
 
 const TIPOS = [
   { valor: "Laptop", icono: <IconoLaptop className="w-7 h-7" /> },
   { valor: "PC de escritorio", icono: <IconoMonitor className="w-7 h-7" /> },
 ];
+
+// Número de WhatsApp del negocio (código de país + número, sin «+»)
+const WHATSAPP_NEGOCIO = "59165073163";
 
 export default function Cotizacion() {
   const [tipo, setTipo] = useState("");
@@ -17,6 +20,7 @@ export default function Cotizacion() {
   const [whatsapp, setWhatsapp] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [enviada, setEnviada] = useState(false);
+  const [waLink, setWaLink] = useState("");
   const [error, setError] = useState("");
 
   async function enviar(e: React.FormEvent) {
@@ -47,7 +51,19 @@ export default function Cotizacion() {
         }),
       });
       if (res.ok) {
+        // Arma el mensaje de WhatsApp hacia el negocio y lo abre.
+        const modeloTexto = !noSabeModelo && modelo.trim() ? modelo.trim() : "No lo sé";
+        const mensaje =
+          `Hola AV SOLUTIONS, quiero una cotizacion:\n\n` +
+          `- Equipo: ${tipo}\n` +
+          `- Modelo: ${modeloTexto}\n` +
+          `- Problema: ${problema.trim()}\n` +
+          `- Mi nombre: ${nombre.trim()}`;
+        const link = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`;
+        setWaLink(link);
         setEnviada(true);
+        // Abre WhatsApp automáticamente (si el navegador lo bloquea, queda el botón).
+        window.open(link, "_blank");
       } else {
         const { error } = await res.json().catch(() => ({ error: "No se pudo enviar" }));
         setError(error);
@@ -89,14 +105,24 @@ export default function Cotizacion() {
         {enviada ? (
           <div className="aparecer py-8 text-center">
             <span className="mb-4 block text-5xl">🎉</span>
-            <h3 className="mb-2 text-2xl font-bold text-emerald-400">¡Cotización enviada!</h3>
-            <p className="mx-auto mb-8 max-w-md text-slate-400">
-              Recibimos los datos de tu equipo. Te contactaremos muy pronto por WhatsApp
-              al número <b className="text-slate-100">{whatsapp}</b> con tu presupuesto.
+            <h3 className="mb-2 text-2xl font-bold text-emerald-400">¡Ya casi está!</h3>
+            <p className="mx-auto mb-7 max-w-md text-slate-400">
+              Se abrió WhatsApp con tu cotización lista. Solo pulsa <b className="text-slate-100">Enviar</b> ahí
+              para mandárnosla. ¿No se abrió? Usa el botón:
             </p>
-            <button onClick={reiniciar} className="btn-glow">
-              <span>Enviar otra cotización</span>
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-7 py-3 font-semibold text-white transition hover:bg-emerald-400"
+              >
+                <IconoChat className="w-5 h-5" /> Enviar por WhatsApp
+              </a>
+              <button onClick={reiniciar} className="btn-glow">
+                <span>Enviar otra cotización</span>
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={enviar} className="flex flex-col gap-6">
