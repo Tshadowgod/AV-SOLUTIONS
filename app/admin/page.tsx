@@ -153,6 +153,7 @@ function Panel({
   const [filtro, setFiltro] = useState("");
   const [form, setForm] = useState<Orden>({ ...ORDEN_VACIA, recibido: fechaHoy() });
   const [editando, setEditando] = useState<string | null>(null);
+  const [convirtiendo, setConvirtiendo] = useState<number | null>(null);
   const [confirmandoBorrar, setConfirmandoBorrar] = useState<string | null>(null);
   const [aviso, setAviso] = useState("");
   const [guardando, setGuardando] = useState(false);
@@ -203,15 +204,47 @@ function Panel({
         });
 
     if (res.ok) {
-      toast(editando ? `✏️ Orden ${cuerpo.codigo} actualizada` : `✅ Orden ${cuerpo.codigo} registrada`);
+      // Si esta orden venía de una cotización, la marcamos como atendida.
+      if (convirtiendo !== null && !editando) {
+        await fetch(`/api/admin/cotizaciones/${convirtiendo}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ atendida: true }),
+        });
+      }
+      toast(
+        editando
+          ? `✏️ Orden ${cuerpo.codigo} actualizada`
+          : convirtiendo !== null
+          ? `✅ Cotización convertida en la orden ${cuerpo.codigo}`
+          : `✅ Orden ${cuerpo.codigo} registrada`
+      );
       setForm({ ...ORDEN_VACIA, recibido: fechaHoy() });
       setEditando(null);
+      setConvirtiendo(null);
       await recargar();
     } else {
       const { error } = await res.json().catch(() => ({ error: "Error al guardar" }));
       toast(`⚠️ ${error}`);
     }
     setGuardando(false);
+  }
+
+  function convertirAOrden(c: Cotizacion) {
+    const modelo = c.sabe_modelo && c.modelo ? ` ${c.modelo}` : "";
+    setEditando(null);
+    setConvirtiendo(c.id);
+    setForm({
+      codigo: siguienteCodigo(),
+      cliente: c.nombre,
+      equipo: `${c.tipo}${modelo}`,
+      servicio: c.problema,
+      recibido: fechaHoy(),
+      estado: 0,
+      nota: "",
+    });
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    toast("📋 Revisa los datos y pulsa «Guardar orden» para registrarla");
   }
 
   async function cambiarEstado(codigo: string, estado: number) {
@@ -245,6 +278,7 @@ function Panel({
   }
 
   function editar(orden: Orden) {
+    setConvirtiendo(null);
     setEditando(orden.codigo);
     setForm({ ...orden });
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -325,10 +359,20 @@ function Panel({
       </section>
 
       {/* Formulario nueva orden / edición */}
-      <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
-        <h2 className="mb-1 text-lg font-bold">{editando ? `✏️ Editando ${editando}` : "➕ Nueva orden"}</h2>
+      <section className={`mb-6 rounded-3xl border p-7 backdrop-blur ${convirtiendo !== null ? "border-violet-500/40 bg-violet-500/[0.06]" : "border-white/10 bg-white/[0.04]"}`}>
+        <h2 className="mb-1 text-lg font-bold">
+          {editando
+            ? `✏️ Editando ${editando}`
+            : convirtiendo !== null
+            ? "🔄 Convertir cotización en orden"
+            : "➕ Nueva orden"}
+        </h2>
         <p className="mb-5 text-sm text-slate-400">
-          {editando ? "Modifica los datos y guarda." : "Registra el equipo que acaba de dejar un cliente."}
+          {editando
+            ? "Modifica los datos y guarda."
+            : convirtiendo !== null
+            ? "Ajusta los datos de la cotización y guárdala como orden registrada."
+            : "Registra el equipo que acaba de dejar un cliente."}
         </p>
         <form ref={formRef} onSubmit={guardarForm} className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-400">
@@ -371,9 +415,9 @@ function Panel({
               onChange={(e) => setForm({ ...form, nota: e.target.value })} />
           </label>
           <div className="flex justify-end gap-3 sm:col-span-2">
-            {editando && (
+            {(editando || convirtiendo !== null) && (
               <button type="button" className="cursor-pointer rounded-full border border-white/10 px-6 py-2.5 text-sm font-semibold text-slate-400 transition hover:text-slate-100"
-                onClick={() => { setEditando(null); setForm({ ...ORDEN_VACIA, recibido: fechaHoy() }); }}>
+                onClick={() => { setEditando(null); setConvirtiendo(null); setForm({ ...ORDEN_VACIA, recibido: fechaHoy() }); }}>
                 Cancelar
               </button>
             )}
@@ -515,6 +559,12 @@ function Panel({
                   >
                     <IconoChat className="w-4 h-4" /> Responder por WhatsApp
                   </a>
+                  <button
+                    onClick={() => convertirAOrden(c)}
+                    className="cursor-pointer rounded-lg border border-violet-400/40 bg-violet-400/10 px-3.5 py-1.5 text-sm font-medium text-violet-200 transition hover:bg-violet-400/20"
+                  >
+                    🔄 Convertir a orden
+                  </button>
                   <button
                     onClick={() => marcarCotizacion(c.id, !c.atendida)}
                     className="cursor-pointer rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-slate-300 transition hover:border-white/30"
