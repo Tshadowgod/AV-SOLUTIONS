@@ -52,13 +52,16 @@ export default function Cotizacion() {
       });
       if (res.ok) {
         // Arma el mensaje de WhatsApp hacia el negocio y lo abre.
+        // Emojis con \u{...} para que lleguen correctos sin problemas de codificación.
         const modeloTexto = !noSabeModelo && modelo.trim() ? modelo.trim() : "No lo sé";
+        const emEquipo = tipo === "Laptop" ? "\u{1F4BB}" : "\u{1F5A5}\u{FE0F}"; // 💻 / 🖥️
         const mensaje =
-          `Hola AV SOLUTIONS, quiero una cotizacion:\n\n` +
-          `- Equipo: ${tipo}\n` +
-          `- Modelo: ${modeloTexto}\n` +
-          `- Problema: ${problema.trim()}\n` +
-          `- Mi nombre: ${nombre.trim()}`;
+          `\u{1F44B} Hola AV SOLUTIONS, quiero una cotización:\n\n` + // 👋
+          `${emEquipo} Equipo: ${tipo}\n` +
+          `\u{1F3F7}\u{FE0F} Modelo: ${modeloTexto}\n` + // 🏷️
+          `\u{1F527} Problema: ${problema.trim()}\n` + // 🔧
+          `\u{1F9D1} Mi nombre: ${nombre.trim()}\n` + // 🧑
+          `\u{1F4F1} Mi WhatsApp: ${whatsapp.trim()}`; // 📱
         const link = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`;
         setWaLink(link);
         setEnviada(true);
