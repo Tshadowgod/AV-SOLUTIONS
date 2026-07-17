@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { notificarWhatsApp } from "@/lib/notificar";
 
 // Enviar una cotización (público: el cliente describe su equipo y problema)
 export async function POST(request: Request) {
@@ -34,6 +35,15 @@ export async function POST(request: Request) {
     console.error("Error guardando cotización:", error);
     return NextResponse.json({ error: "Error del servidor" }, { status: 500 });
   }
+
+  // Aviso al WhatsApp del dueño (si está configurado). No bloquea si falla.
+  await notificarWhatsApp(
+    `🔔 Nueva cotización en AV SOLUTIONS\n\n` +
+      `👤 Cliente: ${nombre}\n` +
+      `💻 Equipo: ${tipo}${sabeModelo && modelo ? ` — ${modelo}` : " — (modelo no indicado)"}\n` +
+      `📝 Problema: ${problema}\n` +
+      `📱 WhatsApp: ${whatsapp}`
+  );
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }
