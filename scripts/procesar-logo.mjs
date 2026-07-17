@@ -4,6 +4,8 @@
    Uso: node scripts/procesar-logo.mjs                              */
 
 import sharp from "sharp";
+import pngToIco from "png-to-ico";
+import { writeFile } from "node:fs/promises";
 
 const ORIGEN = "logo-original.png";
 
@@ -44,8 +46,19 @@ const logoParaIcono = await sharp(logoBlanco)
   .resize(360, 360, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
   .toBuffer();
 
-await sharp(fondo)
+const iconoBuffer = await sharp(fondo)
   .composite([{ input: logoParaIcono, gravity: "centre" }])
   .png()
-  .toFile("app/icon.png");
+  .toBuffer();
+
+await writeFile("app/icon.png", iconoBuffer);
 console.log("✅ app/icon.png (favicon 512x512)");
+
+// 4. favicon.ico multi-resolución (reemplaza el de Next.js que sale en la pestaña)
+const tamanos = await Promise.all(
+  [16, 32, 48, 64, 128, 256].map((n) =>
+    sharp(iconoBuffer).resize(n, n).png().toBuffer()
+  )
+);
+await writeFile("app/favicon.ico", await pngToIco(tamanos));
+console.log("✅ app/favicon.ico (16→256px)");
