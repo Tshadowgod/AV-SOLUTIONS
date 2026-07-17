@@ -26,6 +26,21 @@ await sql`
 `;
 console.log("✅ Tabla 'ordenes' lista");
 
+await sql`
+  CREATE TABLE IF NOT EXISTS cotizaciones (
+    id         SERIAL PRIMARY KEY,
+    tipo       TEXT NOT NULL,
+    modelo     TEXT NOT NULL DEFAULT '',
+    sabe_modelo BOOLEAN NOT NULL DEFAULT TRUE,
+    problema   TEXT NOT NULL,
+    nombre     TEXT NOT NULL,
+    whatsapp   TEXT NOT NULL,
+    atendida   BOOLEAN NOT NULL DEFAULT FALSE,
+    creado     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )
+`;
+console.log("✅ Tabla 'cotizaciones' lista");
+
 const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM ordenes`;
 
 if (total === 0) {

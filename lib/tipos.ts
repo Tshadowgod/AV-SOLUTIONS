@@ -18,3 +18,15 @@ export const ESTADOS = [
 
 export const ESTADO_LISTO = 3;
 export const ESTADO_ENTREGADO = 4;
+
+export interface Cotizacion {
+  id: number;
+  tipo: string;
+  modelo: string;
+  sabe_modelo: boolean;
+  problema: string;
+  nombre: string;
+  whatsapp: string;
+  atendida: boolean;
+  creado: string;
+}

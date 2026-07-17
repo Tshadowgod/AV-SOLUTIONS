@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ESTADOS, type Orden } from "@/lib/tipos";
-import { IconoCandado, IconoLupa, LogoAV } from "@/components/Iconos";
+import { ESTADOS, type Orden, type Cotizacion } from "@/lib/tipos";
+import { IconoCandado, IconoLupa, IconoChat, LogoAV } from "@/components/Iconos";
 
 const ETIQUETAS_ESTADO = ESTADOS.map((e) => `${e.icono} ${e.nombre}`);
 
@@ -26,15 +26,20 @@ function fechaHoy() {
 export default function PaginaAdmin() {
   const [sesion, setSesion] = useState<"cargando" | "sin-sesion" | "activa">("cargando");
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
 
-  const cargarOrdenes = useCallback(async () => {
-    const res = await fetch("/api/admin/ordenes");
-    if (res.status === 401) {
+  const cargarDatos = useCallback(async () => {
+    const [resOrd, resCot] = await Promise.all([
+      fetch("/api/admin/ordenes"),
+      fetch("/api/admin/cotizaciones"),
+    ]);
+    if (resOrd.status === 401) {
       setSesion("sin-sesion");
       return false;
     }
-    if (res.ok) {
-      setOrdenes(await res.json());
+    if (resOrd.ok) {
+      setOrdenes(await resOrd.json());
+      if (resCot.ok) setCotizaciones(await resCot.json());
       setSesion("activa");
       return true;
     }
@@ -42,8 +47,8 @@ export default function PaginaAdmin() {
   }, []);
 
   useEffect(() => {
-    cargarOrdenes();
-  }, [cargarOrdenes]);
+    cargarDatos();
+  }, [cargarDatos]);
 
   if (sesion === "cargando") {
     return (
@@ -54,13 +59,14 @@ export default function PaginaAdmin() {
   }
 
   if (sesion === "sin-sesion") {
-    return <PantallaLogin alEntrar={cargarOrdenes} />;
+    return <PantallaLogin alEntrar={cargarDatos} />;
   }
 
   return (
     <Panel
       ordenes={ordenes}
-      recargar={cargarOrdenes}
+      cotizaciones={cotizaciones}
+      recargar={cargarDatos}
       alSalir={async () => {
         await fetch("/api/admin/login", { method: "DELETE" });
         setSesion("sin-sesion");
@@ -135,10 +141,12 @@ function PantallaLogin({ alEntrar }: { alEntrar: () => Promise<boolean> }) {
 
 function Panel({
   ordenes,
+  cotizaciones,
   recargar,
   alSalir,
 }: {
   ordenes: Orden[];
+  cotizaciones: Cotizacion[];
   recargar: () => Promise<boolean>;
   alSalir: () => Promise<void>;
 }) {
@@ -241,6 +249,38 @@ function Panel({
     setForm({ ...orden });
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     toast(`✏️ Editando ${orden.codigo} — modifica y pulsa "Actualizar orden"`);
+  }
+
+  const cotizacionesPendientes = cotizaciones.filter((c) => !c.atendida).length;
+
+  async function marcarCotizacion(id: number, atendida: boolean) {
+    const res = await fetch(`/api/admin/cotizaciones/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ atendida }),
+    });
+    if (res.ok) {
+      toast(atendida ? "✅ Cotización marcada como atendida" : "↩️ Cotización reabierta");
+      await recargar();
+    } else {
+      toast("⚠️ No se pudo actualizar");
+    }
+  }
+
+  async function borrarCotizacion(id: number) {
+    if (confirmandoBorrar !== `cot-${id}`) {
+      setConfirmandoBorrar(`cot-${id}`);
+      toast("Haz clic otra vez en ❗ para confirmar la eliminación");
+      return;
+    }
+    const res = await fetch(`/api/admin/cotizaciones/${id}`, { method: "DELETE" });
+    setConfirmandoBorrar(null);
+    if (res.ok) {
+      toast("🗑️ Cotización eliminada");
+      await recargar();
+    } else {
+      toast("⚠️ No se pudo eliminar");
+    }
   }
 
   const inputClase =
@@ -410,6 +450,88 @@ function Panel({
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Cotizaciones recibidas */}
+      <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-bold">📨 Cotizaciones recibidas</h2>
+          {cotizacionesPendientes > 0 && (
+            <span className="rounded-full bg-violet-500/20 px-3 py-0.5 text-xs font-semibold text-violet-300">
+              {cotizacionesPendientes} sin atender
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3.5">
+          {cotizaciones.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-slate-400">
+              Aún no llegan cotizaciones. Cuando un cliente envíe una desde la página, aparecerá aquí. 📩
+            </div>
+          )}
+          {cotizaciones.map((c) => {
+            const waLink = `https://wa.me/${c.whatsapp.replace(/[^0-9]/g, "")}`;
+            return (
+              <div
+                key={c.id}
+                className={`rounded-2xl border p-5 transition ${
+                  c.atendida
+                    ? "border-white/10 bg-white/[0.02] opacity-60"
+                    : "border-violet-500/30 bg-violet-500/[0.06]"
+                }`}
+              >
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="rounded-lg bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-cyan-400">
+                      {c.tipo}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-100">{c.nombre}</span>
+                    {c.atendida && <span className="text-xs text-emerald-400">✓ Atendida</span>}
+                  </div>
+                  <span className="text-xs text-slate-500">
+                    {new Date(c.creado).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
+                </div>
+
+                <p className="mb-3 text-sm text-slate-300">{c.problema}</p>
+
+                <div className="mb-4 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
+                  <span>
+                    <b className="text-slate-300">Modelo:</b>{" "}
+                    {c.sabe_modelo ? c.modelo : "No lo sabe"}
+                  </span>
+                  <span>
+                    <b className="text-slate-300">WhatsApp:</b> {c.whatsapp}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                  <a
+                    href={waLink}
+                    target="_blank"
+                    rel="noopener"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-3.5 py-1.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-400/20"
+                  >
+                    <IconoChat className="w-4 h-4" /> Responder por WhatsApp
+                  </a>
+                  <button
+                    onClick={() => marcarCotizacion(c.id, !c.atendida)}
+                    className="cursor-pointer rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-slate-300 transition hover:border-white/30"
+                  >
+                    {c.atendida ? "↩️ Reabrir" : "✓ Marcar atendida"}
+                  </button>
+                  <button
+                    onClick={() => borrarCotizacion(c.id)}
+                    title={confirmandoBorrar === `cot-${c.id}` ? "Haz clic otra vez para confirmar" : "Eliminar"}
+                    className="cursor-pointer rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm transition hover:border-red-400/50 hover:bg-red-400/10"
+                  >
+                    {confirmandoBorrar === `cot-${c.id}` ? "❗" : "🗑️"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 

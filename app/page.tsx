@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ConsultaEstado from "@/components/ConsultaEstado";
+import Cotizacion from "@/components/Cotizacion";
 import {
   IconoLlave,
   IconoChip,
@@ -10,6 +11,7 @@ import {
   IconoPin,
   IconoReloj,
   IconoCandado,
+  IconoDocumento,
   LogoAV,
 } from "@/components/Iconos";
 
@@ -61,6 +63,7 @@ export default function Inicio() {
         <nav className="hidden gap-8 md:flex">
           {[
             ["#consulta", "Consultar estado"],
+            ["#cotizacion", "Cotización"],
             ["#servicios", "Servicios"],
             ["#proceso", "Proceso"],
             ["#contacto", "Contacto"],
@@ -94,17 +97,18 @@ export default function Inicio() {
           <b className="text-slate-100">listo para recoger</b>.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <a href="#consulta" className="btn-glow">
+          <a href="#cotizacion" className="btn-glow">
             <span className="px-2 py-1 text-base">
-              <IconoLupa />
-              Consultar mi equipo
+              <IconoDocumento className="w-5 h-5" />
+              Realizar cotización
             </span>
           </a>
           <a
-            href="#servicios"
-            className="inline-flex items-center rounded-full border border-white/10 px-8 py-3 font-semibold text-slate-400 transition hover:border-white/30 hover:bg-white/5 hover:text-slate-100"
+            href="#consulta"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-3 font-semibold text-slate-400 transition hover:border-white/30 hover:bg-white/5 hover:text-slate-100"
           >
-            Ver servicios
+            <IconoLupa />
+            Consultar mi equipo
           </a>
         </div>
 
@@ -129,6 +133,9 @@ export default function Inicio() {
 
       {/* ══════════ CONSULTA ══════════ */}
       <ConsultaEstado />
+
+      {/* ══════════ COTIZACIÓN ══════════ */}
+      <Cotizacion />
 
       {/* ══════════ SERVICIOS ══════════ */}
       <section className="mx-auto max-w-6xl px-6 py-16" id="servicios">
