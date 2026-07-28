@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IconoLaptop, IconoMonitor, IconoChat } from "@/components/Iconos";
 import { WHATSAPP_NUMERO } from "@/lib/negocio";
+import RevealOnScroll from "@/components/RevealOnScroll";
 
 const TIPOS = [
   { valor: "Laptop", icono: <IconoLaptop className="w-7 h-7" /> },
@@ -92,7 +93,8 @@ export default function Cotizacion() {
 
   return (
     <section className="px-5 py-16" id="cotizacion">
-      <div className="mb-11 text-center">
+      <RevealOnScroll>
+        <div className="mb-11 text-center">
         <span className="mb-4 inline-block rounded-full border border-violet-400/25 bg-violet-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-violet-300">
           Cotización gratis
         </span>
@@ -101,7 +103,9 @@ export default function Cotizacion() {
           Cuéntanos qué le pasa a tu equipo y te enviamos un presupuesto sin compromiso por WhatsApp.
         </p>
       </div>
+      </RevealOnScroll>
 
+      <RevealOnScroll delay={150} variante="escala">
       <div className="beam-top mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.045] p-7 shadow-2xl shadow-black/45 backdrop-blur-xl sm:p-12">
         {enviada ? (
           <div className="aparecer py-8 text-center">
@@ -232,6 +236,7 @@ export default function Cotizacion() {
           </form>
         )}
       </div>
+      </RevealOnScroll>
     </section>
   );
 }

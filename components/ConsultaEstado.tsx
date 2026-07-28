@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ESTADOS, ESTADO_LISTO, ESTADO_ENTREGADO, type Orden } from "@/lib/tipos";
 import { IconoLupa } from "@/components/Iconos";
+import RevealOnScroll from "@/components/RevealOnScroll";
 
 export default function ConsultaEstado() {
   const [codigo, setCodigo] = useState("");
@@ -39,7 +40,8 @@ export default function ConsultaEstado() {
 
   return (
     <section className="px-5 pb-20 pt-8" id="consulta">
-      <div className="beam-top mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.045] p-7 shadow-2xl shadow-black/45 backdrop-blur-xl sm:p-12">
+      <RevealOnScroll variante="escala">
+        <div className="beam-top mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.045] p-7 shadow-2xl shadow-black/45 backdrop-blur-xl sm:p-12">
         <div className="mb-8 text-center">
           <span className="mb-4 inline-block rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-400">
             Consulta en línea
@@ -117,7 +119,8 @@ export default function ConsultaEstado() {
             </p>
           </div>
         )}
-      </div>
+        </div>
+      </RevealOnScroll>
     </section>
   );
 }

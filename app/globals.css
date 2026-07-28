@@ -18,6 +18,51 @@ h1, h2, h3 {
 
 html { scroll-behavior: smooth; }
 
+/* ── Entrada del hero al cargar ── */
+@keyframes hero-entrar {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-entrar {
+  opacity: 0;
+  animation: hero-entrar 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-retraso-1 { animation-delay: 0.05s; }
+.hero-retraso-2 { animation-delay: 0.15s; }
+.hero-retraso-3 { animation-delay: 0.25s; }
+.hero-retraso-4 { animation-delay: 0.35s; }
+.hero-retraso-5 { animation-delay: 0.45s; }
+.hero-retraso-6 { animation-delay: 0.55s; }
+
+/* ── Revelado al hacer scroll ── */
+.scroll-reveal {
+  opacity: 0;
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.scroll-reveal--arriba      { transform: translateY(2.25rem); }
+.scroll-reveal--izquierda   { transform: translateX(-2rem); }
+.scroll-reveal--derecha     { transform: translateX(2rem); }
+.scroll-reveal--escala      { transform: scale(0.94); }
+.scroll-reveal--visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-entrar {
+    opacity: 1;
+    animation: none;
+  }
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* ── Blobs de fondo flotantes ── */
 .blob {
   position: absolute;

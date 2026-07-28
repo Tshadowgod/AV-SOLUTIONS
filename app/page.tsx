@@ -2,6 +2,7 @@ import Link from "next/link";
 import ConsultaEstado from "@/components/ConsultaEstado";
 import Cotizacion from "@/components/Cotizacion";
 import Navbar from "@/components/Navbar";
+import RevealOnScroll from "@/components/RevealOnScroll";
 import WhatsAppFlotante from "@/components/WhatsAppFlotante";
 import {
   IconoLlave,
@@ -65,24 +66,24 @@ export default function Inicio() {
 
       {/* ══════════ HERO ══════════ */}
       <section className="mx-auto max-w-4xl px-6 pb-14 pt-16 text-center sm:pt-24" id="inicio">
-        <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
+        <div className="hero-entrar hero-retraso-1 mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
           <span className="pulse-dot" />
           Servicio técnico especializado · Emergencias 24/7
         </div>
-        <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">
+        <h1 className="hero-entrar hero-retraso-2 text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">
           Reparamos tu computadora.
           <br />
           <span className="bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-transparent">
             Tú sigues su estado en línea.
           </span>
         </h1>
-        <p className="mx-auto mb-6 mt-6 max-w-2xl text-lg text-slate-400">
+        <p className="hero-entrar hero-retraso-3 mx-auto mb-6 mt-6 max-w-2xl text-lg text-slate-400">
           Mantenimiento, reparación y optimización de laptops y PCs de escritorio.
           Ingresa tu código de orden y descubre al instante si tu equipo ya está{" "}
           <b className="text-slate-100">listo para recoger</b>.
         </p>
 
-        <div className="mb-9 flex flex-wrap justify-center gap-2">
+        <div className="hero-entrar hero-retraso-4 mb-9 flex flex-wrap justify-center gap-2">
           {EQUIPOS.map((eq) => (
             <span
               key={eq}
@@ -93,7 +94,7 @@ export default function Inicio() {
           ))}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="hero-entrar hero-retraso-5 flex flex-wrap justify-center gap-4">
           <a href="#cotizacion" className="btn-glow">
             <span className="px-2 py-1 text-base">
               <IconoDocumento className="h-5 w-5" />
@@ -109,7 +110,7 @@ export default function Inicio() {
           </a>
         </div>
 
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-11">
+        <div className="hero-entrar hero-retraso-6 mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-11">
           {[
             ["+500", "Equipos reparados"],
             ["24-72h", "Tiempo promedio"],
@@ -136,69 +137,73 @@ export default function Inicio() {
 
       {/* ══════════ SERVICIOS ══════════ */}
       <section className="mx-auto max-w-6xl px-6 py-16" id="servicios">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
-            Servicios
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">Lo que hacemos por tu equipo</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-slate-400">
-            Diagnóstico honesto, repuestos de calidad y trabajo garantizado en cada reparación.
-          </p>
-        </div>
+        <RevealOnScroll>
+          <div className="mb-11 text-center">
+            <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
+              Servicios
+            </span>
+            <h2 className="text-3xl font-bold sm:text-4xl">Lo que hacemos por tu equipo</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-slate-400">
+              Diagnóstico honesto, repuestos de calidad y trabajo garantizado en cada reparación.
+            </p>
+          </div>
+        </RevealOnScroll>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICIOS.map((s) => (
-            <article
-              key={s.titulo}
-              className="group rounded-2xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45 hover:shadow-[0_18px_44px_rgba(0,0,0,0.4),0_0_30px_rgba(139,92,246,0.12)]"
-            >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-cyan-400/15 text-cyan-400 transition group-hover:scale-110 group-hover:text-violet-300">
-                {s.icono}
-              </div>
-              <h3 className="mb-2 text-lg font-bold">{s.titulo}</h3>
-              <p className="text-sm text-slate-400">{s.detalle}</p>
-            </article>
+          {SERVICIOS.map((s, i) => (
+            <RevealOnScroll key={s.titulo} delay={i * 100} variante="escala">
+              <article className="group h-full rounded-2xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45 hover:shadow-[0_18px_44px_rgba(0,0,0,0.4),0_0_30px_rgba(139,92,246,0.12)]">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-cyan-400/15 text-cyan-400 transition group-hover:scale-110 group-hover:text-violet-300">
+                  {s.icono}
+                </div>
+                <h3 className="mb-2 text-lg font-bold">{s.titulo}</h3>
+                <p className="text-sm text-slate-400">{s.detalle}</p>
+              </article>
+            </RevealOnScroll>
           ))}
         </div>
       </section>
 
       {/* ══════════ PROCESO ══════════ */}
       <section className="mx-auto max-w-6xl px-6 py-16" id="proceso">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
-            Proceso
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">Así viaja tu equipo con nosotros</h2>
-        </div>
+        <RevealOnScroll>
+          <div className="mb-11 text-center">
+            <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
+              Proceso
+            </span>
+            <h2 className="text-3xl font-bold sm:text-4xl">Así viaja tu equipo con nosotros</h2>
+          </div>
+        </RevealOnScroll>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PASOS.map((p, i) => (
-            <div
-              key={p.titulo}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-7 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/40"
-            >
-              <span
-                className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 text-lg font-bold text-white shadow-[0_6px_18px_rgba(139,92,246,0.35)]"
-                style={{ fontFamily: "var(--font-space-grotesk)" }}
-              >
-                {i + 1}
-              </span>
-              <h3 className="mb-1.5 font-bold">{p.titulo}</h3>
-              <p className="text-sm text-slate-400">{p.detalle}</p>
-            </div>
+            <RevealOnScroll key={p.titulo} delay={i * 120}>
+              <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-7 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/40">
+                <span
+                  className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 text-lg font-bold text-white shadow-[0_6px_18px_rgba(139,92,246,0.35)]"
+                  style={{ fontFamily: "var(--font-space-grotesk)" }}
+                >
+                  {i + 1}
+                </span>
+                <h3 className="mb-1.5 font-bold">{p.titulo}</h3>
+                <p className="text-sm text-slate-400">{p.detalle}</p>
+              </div>
+            </RevealOnScroll>
           ))}
         </div>
       </section>
 
       {/* ══════════ CONTACTO ══════════ */}
       <section className="mx-auto max-w-6xl px-6 py-16" id="contacto">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
-            Contacto
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">¿Dudas? Hablemos</h2>
-          <p className="mx-auto mt-3 max-w-xl text-slate-400">
-            Estamos en Santa Cruz. Escríbenos por WhatsApp o pasa por el taller cuando te convenga.
-          </p>
-        </div>
+        <RevealOnScroll>
+          <div className="mb-11 text-center">
+            <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
+              Contacto
+            </span>
+            <h2 className="text-3xl font-bold sm:text-4xl">¿Dudas? Hablemos</h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-400">
+              Estamos en Santa Cruz. Escríbenos por WhatsApp o pasa por el taller cuando te convenga.
+            </p>
+          </div>
+        </RevealOnScroll>
         <div className="grid gap-5 sm:grid-cols-3">
           {[
             {
@@ -220,7 +225,7 @@ export default function Inicio() {
               titulo: "Horario",
               detalle: "Lun–Sáb 9:00–19:00 · Emergencias 24/7",
             },
-          ].map((c) => {
+          ].map((c, i) => {
             const contenido = (
               <>
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-cyan-400/15 text-cyan-400">
@@ -234,15 +239,17 @@ export default function Inicio() {
               </>
             );
             const clases =
-              "block rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45";
-            return c.href ? (
-              <a key={c.titulo} href={c.href} target="_blank" rel="noopener noreferrer" className={clases}>
-                {contenido}
-              </a>
-            ) : (
-              <div key={c.titulo} className={clases}>
-                {contenido}
-              </div>
+              "block h-full rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45";
+            return (
+              <RevealOnScroll key={c.titulo} delay={i * 100} variante={i === 0 ? "izquierda" : i === 2 ? "derecha" : "arriba"}>
+                {c.href ? (
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" className={clases}>
+                    {contenido}
+                  </a>
+                ) : (
+                  <div className={clases}>{contenido}</div>
+                )}
+              </RevealOnScroll>
             );
           })}
         </div>
@@ -251,18 +258,20 @@ export default function Inicio() {
       <WhatsAppFlotante />
 
       {/* ══════════ FOOTER ══════════ */}
-      <footer className="mt-auto border-t border-white/10 py-8 text-center text-sm text-slate-400">
-        <p className="flex flex-wrap items-center justify-center gap-1.5">
-          © 2026 AV SOLUTIONS · Reparación y mantenimiento de computadoras ·
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1 opacity-70 transition hover:text-cyan-400 hover:opacity-100"
-            title="Acceso administrador"
-          >
-            <IconoCandado className="h-3.5 w-3.5" /> Admin
-          </Link>
-        </p>
-      </footer>
+      <RevealOnScroll>
+        <footer className="mt-auto border-t border-white/10 py-8 text-center text-sm text-slate-400">
+          <p className="flex flex-wrap items-center justify-center gap-1.5">
+            © 2026 AV SOLUTIONS · Reparación y mantenimiento de computadoras ·
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1 opacity-70 transition hover:text-cyan-400 hover:opacity-100"
+              title="Acceso administrador"
+            >
+              <IconoCandado className="h-3.5 w-3.5" /> Admin
+            </Link>
+          </p>
+        </footer>
+      </RevealOnScroll>
     </>
   );
 }
