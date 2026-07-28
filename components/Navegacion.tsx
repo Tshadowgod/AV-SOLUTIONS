@@ -42,7 +42,7 @@ export default function Navegacion() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
+          <div className="hidden md:block">
             <a href="#consulta" className="btn-glow">
               <span>Mi equipo</span>
             </a>
