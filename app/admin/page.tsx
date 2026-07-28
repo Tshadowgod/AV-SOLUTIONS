@@ -32,6 +32,18 @@ function fechaHoy() {
     .replace(" de 2", ", 2");
 }
 
+function tiempoRelativo(iso: string) {
+  const ms = Date.now() - new Date(iso).getTime();
+  if (isNaN(ms) || ms < 0) return "";
+  const min = Math.floor(ms / 60_000);
+  if (min < 1) return "hace un momento";
+  if (min < 60) return `hace ${min} min`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `hace ${horas} h`;
+  const dias = Math.floor(horas / 24);
+  return dias === 1 ? "hace 1 día" : `hace ${dias} días`;
+}
+
 function siguienteCodigo(ordenes: Orden[]) {
   const nums = ordenes
     .map((o) => parseInt((o.codigo.match(/(\d+)$/) || [])[1], 10))
@@ -56,55 +68,64 @@ function claseEstado(estado: number) {
 }
 
 export default function PaginaAdmin() {
-  const [sesion, setSesion] = useState<"cargando" | "sin-sesion" | "activa">("cargando");
+  const [sesion, setSesion] = useState<"cargando" | "sin-sesion" | "activa" | "error">("cargando");
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
 
   const cargarDatos = useCallback(async () => {
-    const [resOrd, resCot] = await Promise.all([
-      fetch("/api/admin/ordenes"),
-      fetch("/api/admin/cotizaciones"),
-    ]);
-    if (resOrd.status === 401) {
-      setSesion("sin-sesion");
-      return false;
-    }
-    if (resOrd.ok) {
-      setOrdenes(await resOrd.json());
-      if (resCot.ok) setCotizaciones(await resCot.json());
-      setSesion("activa");
-      return true;
-    }
-    return false;
-  }, []);
-
-  useEffect(() => {
-    let cancelado = false;
-    (async () => {
+    try {
       const [resOrd, resCot] = await Promise.all([
         fetch("/api/admin/ordenes"),
         fetch("/api/admin/cotizaciones"),
       ]);
-      if (cancelado) return;
       if (resOrd.status === 401) {
         setSesion("sin-sesion");
-        return;
+        return false;
       }
-      if (resOrd.ok) {
-        setOrdenes(await resOrd.json());
-        if (resCot.ok) setCotizaciones(await resCot.json());
-        setSesion("activa");
-      }
-    })();
-    return () => {
-      cancelado = true;
-    };
+      if (!resOrd.ok) throw new Error("Respuesta inesperada del servidor");
+      setOrdenes(await resOrd.json());
+      if (resCot.ok) setCotizaciones(await resCot.json());
+      setSesion("activa");
+      return true;
+    } catch {
+      setSesion((actual) => (actual === "activa" ? actual : "error"));
+      return false;
+    }
   }, []);
+
+  useEffect(() => {
+    const carga = setTimeout(cargarDatos, 0);
+    return () => clearTimeout(carga);
+  }, [cargarDatos]);
 
   if (sesion === "cargando") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="loader-ring" />
+      </div>
+    );
+  }
+
+  if (sesion === "error") {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <div className="beam-top w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.045] p-10 text-center shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <div className="mb-3 text-4xl">📡</div>
+          <h1 className="mb-1.5 text-2xl font-bold">Sin conexión</h1>
+          <p className="mb-7 text-sm text-slate-400">
+            No pudimos cargar el panel. Revisa tu internet e inténtalo de nuevo.
+          </p>
+          <button
+            type="button"
+            className="btn-glow w-full"
+            onClick={() => {
+              setSesion("cargando");
+              cargarDatos();
+            }}
+          >
+            <span className="w-full justify-center">Reintentar</span>
+          </button>
+        </div>
       </div>
     );
   }
@@ -854,8 +875,8 @@ function Panel({
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-slate-500">
-                      {new Date(c.creado).toLocaleString("es-ES", {
+                    <span className="text-xs text-slate-500" title={new Date(c.creado).toLocaleString("es-ES")}>
+                      {tiempoRelativo(c.creado) || new Date(c.creado).toLocaleString("es-ES", {
                         dateStyle: "medium",
                         timeStyle: "short",
                       })}
