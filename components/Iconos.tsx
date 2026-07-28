@@ -134,6 +134,51 @@ export function IconoX({ className = "w-5 h-5" }: Props) {
   );
 }
 
+export function IconoCopiar({ className = "w-4 h-4" }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+export function IconoEditar({ className = "w-4 h-4" }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+export function IconoBasura({ className = "w-4 h-4" }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
+export function IconoFlechaDerecha({ className = "w-4 h-4" }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+export function IconoMas({ className = "w-4 h-4" }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+}
+
 export function LogoAV({ className = "w-8 h-8" }: Props) {
   return (
     <Image

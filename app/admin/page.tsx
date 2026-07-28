@@ -9,7 +9,18 @@ import {
   type Orden,
   type Cotizacion,
 } from "@/lib/tipos";
-import { IconoCandado, IconoLupa, IconoChat, LogoAV } from "@/components/Iconos";
+import {
+  IconoCandado,
+  IconoLupa,
+  IconoChat,
+  IconoCopiar,
+  IconoEditar,
+  IconoBasura,
+  IconoFlechaDerecha,
+  IconoMas,
+  IconoX,
+  LogoAV,
+} from "@/components/Iconos";
 
 const ETIQUETAS_ESTADO = ESTADOS.map((e) => `${e.icono} ${e.nombre}`);
 
@@ -25,6 +36,16 @@ const ORDEN_VACIA: Orden = {
 
 type FiltroEstado = "todos" | "proceso" | "listo" | "entregado";
 type Vista = "ordenes" | "cotizaciones";
+type FiltroCotizacion = "todas" | "pendientes" | "atendidas";
+type ToastTipo = "ok" | "error" | "info";
+
+const ESTILO_SELECT_ESTADO = [
+  "border-cyan-500/35 bg-cyan-500/10 text-cyan-200",
+  "border-amber-500/35 bg-amber-500/10 text-amber-200",
+  "border-violet-500/35 bg-violet-500/10 text-violet-200",
+  "border-emerald-500/35 bg-emerald-500/10 text-emerald-200",
+  "border-slate-500/35 bg-slate-500/10 text-slate-300",
+];
 
 function fechaHoy() {
   return new Date()
@@ -233,7 +254,8 @@ function Panel({
   const [vista, setVista] = useState<Vista>("ordenes");
   const [filtro, setFiltro] = useState("");
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("todos");
-  const [soloPendientes, setSoloPendientes] = useState(true);
+  const [filtroCot, setFiltroCot] = useState<FiltroCotizacion>("pendientes");
+  const [formAbierto, setFormAbierto] = useState(false);
   const [form, setForm] = useState<Orden>(() => ({
     ...ORDEN_VACIA,
     recibido: fechaHoy(),
@@ -243,16 +265,41 @@ function Panel({
   const [convirtiendo, setConvirtiendo] = useState<number | null>(null);
   const [confirmandoBorrar, setConfirmandoBorrar] = useState<string | null>(null);
   const [aviso, setAviso] = useState("");
+  const [tipoAviso, setTipoAviso] = useState<ToastTipo>("ok");
   const [guardando, setGuardando] = useState(false);
   const [recargando, setRecargando] = useState(false);
   const timerAviso = useRef<ReturnType<typeof setTimeout> | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  function toast(msg: string) {
+  function toast(msg: string, tipo: ToastTipo = "ok") {
     setAviso(msg);
+    setTipoAviso(tipo);
     if (timerAviso.current) clearTimeout(timerAviso.current);
-    timerAviso.current = setTimeout(() => setAviso(""), 2800);
+    timerAviso.current = setTimeout(() => setAviso(""), 3200);
   }
+
+  useEffect(() => {
+    if (!confirmandoBorrar) return;
+    const t = setTimeout(() => setConfirmandoBorrar(null), 3500);
+    return () => clearTimeout(t);
+  }, [confirmandoBorrar]);
+
+  useEffect(() => {
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape" && (editando || convirtiendo !== null)) {
+        setForm({
+          ...ORDEN_VACIA,
+          recibido: fechaHoy(),
+          codigo: siguienteCodigo(ordenes),
+        });
+        setEditando(null);
+        setConvirtiendo(null);
+        setFormAbierto(false);
+      }
+    }
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [editando, convirtiendo, ordenes]);
 
   function resetForm() {
     setForm({
@@ -262,13 +309,37 @@ function Panel({
     });
     setEditando(null);
     setConvirtiendo(null);
+    setFormAbierto(false);
+  }
+
+  function toggleFiltroEstado(id: FiltroEstado) {
+    setFiltroEstado((prev) => (prev === id ? "todos" : id));
+    setVista("ordenes");
+  }
+
+  async function copiarCodigo(codigo: string) {
+    try {
+      await navigator.clipboard.writeText(codigo);
+      toast(`Código ${codigo} copiado`, "info");
+    } catch {
+      toast("No se pudo copiar", "error");
+    }
+  }
+
+  async function avisarSesion(res: Response) {
+    if (res.status === 401) {
+      toast("Tu sesión expiró. Vuelve a entrar.", "error");
+      await alSalir();
+      return true;
+    }
+    return false;
   }
 
   const visibles = ordenarOrdenes(
     ordenes.filter((o) => {
       const coincideTexto =
         !filtro ||
-        [o.codigo, o.cliente, o.equipo, o.servicio].join(" ").toLowerCase().includes(filtro.toLowerCase());
+        [o.codigo, o.cliente, o.equipo, o.servicio, o.nota].join(" ").toLowerCase().includes(filtro.toLowerCase());
       const coincideEstado =
         filtroEstado === "todos" ||
         (filtroEstado === "proceso" && o.estado <= 2) ||
@@ -286,9 +357,18 @@ function Panel({
   };
 
   const cotizacionesPendientes = cotizaciones.filter((c) => !c.atendida).length;
-  const cotizacionesVisibles = soloPendientes
-    ? cotizaciones.filter((c) => !c.atendida)
-    : cotizaciones;
+  const cotizacionesVisibles = cotizaciones.filter((c) => {
+    if (filtroCot === "pendientes") return !c.atendida;
+    if (filtroCot === "atendidas") return c.atendida;
+    return true;
+  });
+
+  const hayFiltrosActivos = filtro !== "" || filtroEstado !== "todos";
+
+  function limpiarFiltros() {
+    setFiltro("");
+    setFiltroEstado("todos");
+  }
 
   async function refrescar() {
     setRecargando(true);
@@ -302,7 +382,8 @@ function Panel({
     setGuardando(true);
     const cuerpo = { ...form, codigo: form.codigo.trim().toUpperCase() };
 
-    const res = editando
+    try {
+      const res = editando
       ? await fetch(`/api/admin/ordenes/${encodeURIComponent(editando)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -313,6 +394,8 @@ function Panel({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(cuerpo),
         });
+
+    if (await avisarSesion(res)) return;
 
     if (res.ok) {
       if (convirtiendo !== null && !editando) {
@@ -341,11 +424,16 @@ function Panel({
         recibido: fechaHoy(),
         codigo: proximoCodigo,
       });
+      setFormAbierto(false);
     } else {
       const { error } = await res.json().catch(() => ({ error: "Error al guardar" }));
-      toast(`⚠️ ${error}`);
+      toast(error, "error");
     }
-    setGuardando(false);
+    } catch {
+      toast("Sin conexión. Revisa tu internet.", "error");
+    } finally {
+      setGuardando(false);
+    }
   }
 
   function convertirAOrden(c: Cotizacion) {
@@ -362,16 +450,19 @@ function Panel({
       estado: 0,
       nota: "",
     });
+    setFormAbierto(true);
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    toast("Revisa los datos y pulsa «Guardar orden»");
+    toast("Revisa los datos y pulsa «Guardar orden»", "info");
   }
 
   async function cambiarEstado(codigo: string, estado: number) {
+    try {
     const res = await fetch(`/api/admin/ordenes/${encodeURIComponent(codigo)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ estado }),
     });
+    if (await avisarSesion(res)) return;
     if (res.ok) {
       toast(
         estado === ESTADO_LISTO
@@ -380,23 +471,35 @@ function Panel({
       );
       await recargar();
     } else {
-      toast("⚠️ No se pudo actualizar");
+      toast("No se pudo actualizar", "error");
     }
+    } catch {
+      toast("Sin conexión. Revisa tu internet.", "error");
+    }
+  }
+
+  async function avanzarEstado(codigo: string, estadoActual: number) {
+    if (estadoActual >= ESTADO_ENTREGADO) return;
+    await cambiarEstado(codigo, estadoActual + 1);
   }
 
   async function borrar(codigo: string) {
     if (confirmandoBorrar !== codigo) {
       setConfirmandoBorrar(codigo);
-      toast("Haz clic otra vez en ❗ para confirmar la eliminación");
       return;
     }
+    try {
     const res = await fetch(`/api/admin/ordenes/${encodeURIComponent(codigo)}`, { method: "DELETE" });
     setConfirmandoBorrar(null);
+    if (await avisarSesion(res)) return;
     if (res.ok) {
       toast(`Orden ${codigo} eliminada`);
       await recargar();
     } else {
-      toast("⚠️ No se pudo eliminar");
+      toast("No se pudo eliminar", "error");
+    }
+    } catch {
+      toast("Sin conexión. Revisa tu internet.", "error");
     }
   }
 
@@ -405,37 +508,47 @@ function Panel({
     setEditando(orden.codigo);
     setForm({ ...orden });
     setVista("ordenes");
+    setFormAbierto(true);
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    toast(`Editando ${orden.codigo}`);
+    toast(`Editando ${orden.codigo}`, "info");
   }
 
   async function marcarCotizacion(id: number, atendida: boolean) {
+    try {
     const res = await fetch(`/api/admin/cotizaciones/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ atendida }),
     });
+    if (await avisarSesion(res)) return;
     if (res.ok) {
       toast(atendida ? "Cotización marcada como atendida" : "Cotización reabierta");
       await recargar();
     } else {
-      toast("⚠️ No se pudo actualizar");
+      toast("No se pudo actualizar", "error");
+    }
+    } catch {
+      toast("Sin conexión. Revisa tu internet.", "error");
     }
   }
 
   async function borrarCotizacion(id: number) {
     if (confirmandoBorrar !== `cot-${id}`) {
       setConfirmandoBorrar(`cot-${id}`);
-      toast("Haz clic otra vez en ❗ para confirmar la eliminación");
       return;
     }
+    try {
     const res = await fetch(`/api/admin/cotizaciones/${id}`, { method: "DELETE" });
     setConfirmandoBorrar(null);
+    if (await avisarSesion(res)) return;
     if (res.ok) {
       toast("Cotización eliminada");
       await recargar();
     } else {
-      toast("⚠️ No se pudo eliminar");
+      toast("No se pudo eliminar", "error");
+    }
+    } catch {
+      toast("Sin conexión. Revisa tu internet.", "error");
     }
   }
 
@@ -452,7 +565,7 @@ function Panel({
   return (
     <div className="mx-auto max-w-5xl px-4 pb-20 pt-6 sm:px-5 sm:pb-16 sm:pt-8">
       {/* Cabecera */}
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-[#070b14]/90 px-4 py-4 backdrop-blur-xl sm:-mx-5 sm:px-5">
         <div className="flex items-center gap-3.5">
           <LogoAV className="h-9 w-9" />
           <div>
@@ -492,10 +605,7 @@ function Panel({
           <button
             key={s.id}
             type="button"
-            onClick={() => {
-              setFiltroEstado(s.id);
-              setVista("ordenes");
-            }}
+            onClick={() => toggleFiltroEstado(s.id)}
             className={`cursor-pointer rounded-2xl border px-4 py-3.5 text-left backdrop-blur transition hover:-translate-y-0.5 sm:px-5 sm:py-4 ${
               filtroEstado === s.id
                 ? "border-violet-500/50 bg-violet-500/10"
@@ -519,10 +629,7 @@ function Panel({
         ))}
         <button
           type="button"
-          onClick={() => {
-            setFiltroEstado("todos");
-            setVista("ordenes");
-          }}
+          onClick={() => toggleFiltroEstado("todos")}
           className={`cursor-pointer rounded-2xl border px-4 py-3.5 text-left backdrop-blur transition hover:-translate-y-0.5 sm:col-span-2 sm:px-5 sm:py-4 lg:col-span-1 ${
             filtroEstado === "todos"
               ? "border-violet-500/50 bg-violet-500/10"
@@ -573,6 +680,15 @@ function Panel({
       {vista === "ordenes" ? (
         <>
           {/* Formulario nueva orden / edición */}
+          {!formAbierto && !editando && convirtiendo === null ? (
+            <button
+              type="button"
+              onClick={() => setFormAbierto(true)}
+              className="mb-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-5 text-sm font-semibold text-slate-300 transition hover:border-violet-500/40 hover:bg-violet-500/[0.06] hover:text-slate-100"
+            >
+              <IconoMas /> Registrar nueva orden
+            </button>
+          ) : (
           <section
             className={`mb-6 rounded-3xl border p-5 backdrop-blur sm:p-7 ${
               convirtiendo !== null
@@ -582,20 +698,34 @@ function Panel({
                   : "border-white/10 bg-white/[0.04]"
             }`}
           >
-            <h2 className="mb-1 text-lg font-bold">
-              {editando
-                ? `Editando ${editando}`
-                : convirtiendo !== null
-                  ? "Convertir cotización en orden"
-                  : "Nueva orden"}
-            </h2>
-            <p className="mb-5 text-sm text-slate-400">
-              {editando
-                ? "Modifica los datos y guarda."
-                : convirtiendo !== null
-                  ? "Ajusta los datos de la cotización y guárdala como orden registrada."
-                  : "Registra el equipo que acaba de dejar un cliente."}
-            </p>
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="mb-1 text-lg font-bold">
+                  {editando
+                    ? `Editando ${editando}`
+                    : convirtiendo !== null
+                      ? "Convertir cotización en orden"
+                      : "Nueva orden"}
+                </h2>
+                <p className="text-sm text-slate-400">
+                  {editando
+                    ? "Modifica los datos y guarda. Pulsa Esc para cancelar."
+                    : convirtiendo !== null
+                      ? "Ajusta los datos de la cotización y guárdala como orden registrada."
+                      : "Registra el equipo que acaba de dejar un cliente."}
+                </p>
+              </div>
+              {!editando && convirtiendo === null && (
+                <button
+                  type="button"
+                  onClick={() => setFormAbierto(false)}
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:text-slate-100"
+                  aria-label="Cerrar formulario"
+                >
+                  <IconoX />
+                </button>
+              )}
+            </div>
             <form ref={formRef} onSubmit={guardarForm} className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-400">
                 Código
@@ -650,7 +780,7 @@ function Panel({
                 Estado
                 <select
                   value={form.estado}
-                  className={`${inputClase} cursor-pointer`}
+                  className={`${inputClase} cursor-pointer ${ESTILO_SELECT_ESTADO[form.estado] ?? ""}`}
                   onChange={(e) => setForm({ ...form, estado: Number(e.target.value) })}
                 >
                   {ETIQUETAS_ESTADO.map((etiqueta, i) => (
@@ -685,6 +815,7 @@ function Panel({
               </div>
             </form>
           </section>
+          )}
 
           {/* Lista de órdenes */}
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur sm:p-7">
@@ -709,13 +840,12 @@ function Panel({
               </div>
             </div>
 
-            {/* Chips de filtro */}
             <div className="mb-5 flex flex-wrap gap-2">
               {filtrosEstado.map((f) => (
                 <button
                   key={f.id}
                   type="button"
-                  onClick={() => setFiltroEstado(f.id)}
+                  onClick={() => toggleFiltroEstado(f.id)}
                   className={`cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                     filtroEstado === f.id
                       ? "bg-violet-500/25 text-violet-200 ring-1 ring-violet-500/40"
@@ -727,12 +857,28 @@ function Panel({
               ))}
             </div>
 
+            {hayFiltrosActivos && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-500/25 bg-violet-500/10 px-4 py-2 text-xs text-violet-200">
+                <span>Filtros activos · {visibles.length} resultado{visibles.length !== 1 ? "s" : ""}</span>
+                <button type="button" onClick={limpiarFiltros} className="cursor-pointer font-semibold underline-offset-2 hover:underline">
+                  Quitar filtros
+                </button>
+              </div>
+            )}
+
             <div className="flex flex-col gap-3.5">
               {visibles.length === 0 && (
                 <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-slate-400">
-                  {filtro || filtroEstado !== "todos"
-                    ? "No hay órdenes que coincidan con tu búsqueda."
-                    : "Aún no hay órdenes registradas. Agrega la primera arriba."}
+                  {hayFiltrosActivos ? (
+                    <>
+                      No hay órdenes que coincidan.
+                      <button type="button" onClick={limpiarFiltros} className="mt-3 block w-full cursor-pointer text-sm text-cyan-400 hover:underline">
+                        Quitar filtros
+                      </button>
+                    </>
+                  ) : (
+                    "Aún no hay órdenes registradas. Pulsa «Registrar nueva orden» arriba."
+                  )}
                 </div>
               )}
               {visibles.map((o) => (
@@ -749,12 +895,15 @@ function Panel({
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <span
-                          className="font-bold text-cyan-400"
+                        <button
+                          type="button"
+                          onClick={() => copiarCodigo(o.codigo)}
+                          className="cursor-pointer font-bold text-cyan-400 underline decoration-dotted underline-offset-4 transition hover:text-cyan-300"
                           style={{ fontFamily: "var(--font-space-grotesk)" }}
+                          title="Clic para copiar"
                         >
                           {o.codigo}
-                        </span>
+                        </button>
                         <span
                           className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${claseEstado(o.estado)}`}
                         >
@@ -765,12 +914,24 @@ function Panel({
                       <div className="text-xs text-slate-400">
                         {o.equipo} · {o.servicio}
                       </div>
+                      <div className="mt-1 text-xs text-slate-500">Recibido: {o.recibido}</div>
                       {o.nota && (
                         <p className="mt-1.5 text-xs text-slate-500">Nota: {o.nota}</p>
                       )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                      {o.estado < ESTADO_ENTREGADO && (
+                        <button
+                          type="button"
+                          onClick={() => avanzarEstado(o.codigo, o.estado)}
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-400/10 text-cyan-300 transition hover:bg-cyan-400/20"
+                          title="Avanzar al siguiente estado"
+                          aria-label={`Avanzar estado de ${o.codigo}`}
+                        >
+                          <IconoFlechaDerecha />
+                        </button>
+                      )}
                       {o.estado < ESTADO_LISTO && (
                         <button
                           type="button"
@@ -783,7 +944,7 @@ function Panel({
                       <select
                         value={o.estado}
                         onChange={(e) => cambiarEstado(o.codigo, Number(e.target.value))}
-                        className={`${inputClase} min-w-[10rem] cursor-pointer`}
+                        className={`${inputClase} min-w-[10rem] cursor-pointer ${ESTILO_SELECT_ESTADO[o.estado] ?? ""}`}
                         title="Cambiar estado"
                         aria-label={`Estado de ${o.codigo}`}
                       >
@@ -795,11 +956,19 @@ function Panel({
                       </select>
                       <button
                         type="button"
+                        onClick={() => copiarCodigo(o.codigo)}
+                        title="Copiar código"
+                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 transition hover:border-white/30"
+                      >
+                        <IconoCopiar />
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => editar(o)}
                         title="Editar orden"
-                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-sm transition hover:border-white/30"
+                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 transition hover:border-white/30"
                       >
-                        ✏️
+                        <IconoEditar />
                       </button>
                       <button
                         type="button"
@@ -809,9 +978,13 @@ function Panel({
                             ? "Haz clic otra vez para confirmar"
                             : "Eliminar orden"
                         }
-                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-sm transition hover:border-red-400/50 hover:bg-red-400/10"
+                        className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border bg-white/[0.04] text-sm transition ${
+                          confirmandoBorrar === o.codigo
+                            ? "border-red-400/60 bg-red-400/15 text-red-300"
+                            : "border-white/10 hover:border-red-400/50 hover:bg-red-400/10"
+                        }`}
                       >
-                        {confirmandoBorrar === o.codigo ? "❗" : "🗑️"}
+                        {confirmandoBorrar === o.codigo ? <IconoX className="h-3.5 w-3.5" /> : <IconoBasura />}
                       </button>
                     </div>
                   </div>
@@ -823,32 +996,45 @@ function Panel({
       ) : (
         /* Cotizaciones */
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur sm:p-7">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold">Cotizaciones recibidas</h2>
-              <p className="text-sm text-slate-400">
-                {cotizacionesVisibles.length} cotización
-                {cotizacionesVisibles.length !== 1 ? "es" : ""} mostrada
-                {cotizacionesVisibles.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-400">
-              <input
-                type="checkbox"
-                checked={soloPendientes}
-                onChange={(e) => setSoloPendientes(e.target.checked)}
-                className="h-4 w-4 cursor-pointer accent-violet-500"
-              />
-              Solo pendientes
-            </label>
+          <div className="mb-5">
+            <h2 className="text-lg font-bold">Cotizaciones recibidas</h2>
+            <p className="text-sm text-slate-400">
+              {cotizacionesVisibles.length} cotización
+              {cotizacionesVisibles.length !== 1 ? "es" : ""} mostrada
+              {cotizacionesVisibles.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {(
+              [
+                ["todas", "Todas", cotizaciones.length],
+                ["pendientes", "Pendientes", cotizacionesPendientes],
+                ["atendidas", "Atendidas", cotizaciones.length - cotizacionesPendientes],
+              ] as const
+            ).map(([id, etiqueta, count]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setFiltroCot(id)}
+                className={`cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                  filtroCot === id
+                    ? "bg-violet-500/25 text-violet-200 ring-1 ring-violet-500/40"
+                    : "border border-white/10 bg-white/[0.03] text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {etiqueta} ({count})
+              </button>
+            ))}
           </div>
 
           <div className="flex flex-col gap-3.5">
             {cotizacionesVisibles.length === 0 && (
               <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-slate-400">
-                {soloPendientes
+                {filtroCot === "pendientes"
                   ? "No hay cotizaciones pendientes. ¡Buen trabajo!"
-                  : "Aún no llegan cotizaciones desde la página."}
+                  : filtroCot === "atendidas"
+                    ? "Aún no hay cotizaciones atendidas."
+                    : "Aún no llegan cotizaciones desde la página."}
               </div>
             )}
             {cotizacionesVisibles.map((c) => {
@@ -887,8 +1073,8 @@ function Panel({
 
                   <div className="mb-4 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
                     <span>
-                      <b className="text-slate-300">Modelo:</b>{" "}
-                      {c.sabe_modelo ? c.modelo : "No lo sabe"}
+                      <b className="text-slate-300">Marca:</b>{" "}
+                      {c.sabe_modelo ? c.modelo : "No la sabe"}
                     </span>
                     <span>
                       <b className="text-slate-300">WhatsApp:</b> {c.whatsapp}
@@ -941,7 +1127,13 @@ function Panel({
       {/* Toast */}
       {aviso && (
         <div
-          className="aparecer fixed bottom-7 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-full border border-emerald-400/50 bg-[#0b1020] px-6 py-3 text-center text-sm font-medium shadow-[0_0_26px_rgba(52,211,153,0.25),0_12px_34px_rgba(0,0,0,0.5)]"
+          className={`aparecer fixed bottom-7 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-full border px-6 py-3 text-center text-sm font-medium shadow-[0_12px_34px_rgba(0,0,0,0.5)] ${
+            tipoAviso === "error"
+              ? "border-red-400/50 bg-[#0b1020] text-red-300"
+              : tipoAviso === "info"
+                ? "border-cyan-400/50 bg-[#0b1020] text-cyan-200"
+                : "border-emerald-400/50 bg-[#0b1020] text-emerald-200"
+          }`}
           role="status"
         >
           {aviso}
