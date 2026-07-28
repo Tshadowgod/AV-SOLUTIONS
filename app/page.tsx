@@ -106,7 +106,7 @@ export default function Inicio() {
         <section className="mx-auto max-w-4xl px-6 pb-12 pt-16 text-center sm:pt-24" id="inicio">
           <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
             <span className="pulse-dot" aria-hidden />
-            {NEGOCIO.eslogan}
+            Servicio técnico especializado
           </div>
 
           <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">

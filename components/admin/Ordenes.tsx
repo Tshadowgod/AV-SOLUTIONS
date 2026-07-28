@@ -145,7 +145,7 @@ export default function Ordenes({
                     : "border-white/10 bg-white/[0.03] hover:border-violet-500/40"
               }`}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2.5">
                     <span
@@ -163,16 +163,16 @@ export default function Ordenes({
                     {orden.equipo} · {orden.servicio}
                   </p>
                   {orden.recibido && (
-                    <p className="mt-0.5 text-xs text-slate-600">Recibido: {orden.recibido}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Recibido: {orden.recibido}</p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   <select
                     value={orden.estado}
                     onChange={(e) => void alCambiarEstado(orden.codigo, Number(e.target.value))}
                     aria-label={`Estado de la orden ${orden.codigo}`}
-                    className="campo !w-auto !py-2 cursor-pointer text-sm"
+                    className="campo !py-2 w-full cursor-pointer text-sm sm:!w-48"
                   >
                     {ESTADOS.map((estado, i) => (
                       <option key={estado.nombre} value={i}>

@@ -355,6 +355,14 @@ function Resultado({ orden }: { orden: Orden }) {
 function LineaTiempo({ estado }: { estado: number }) {
   const avance = (estado / ESTADO_MAXIMO) * 80;
 
+  // Los pasos que faltan van numerados, no con su emoji: un ✅ apagado en
+  // «Listo para recoger» hacía creer que el equipo ya estaba terminado.
+  const marca = (indice: number) => {
+    if (indice < estado) return <IconoCheck className="h-4 w-4" />;
+    if (indice === estado) return ESTADOS[indice].icono;
+    return <span className="text-xs font-bold">{indice + 1}</span>;
+  };
+
   return (
     <>
       {/* Pantallas anchas: recorrido horizontal */}
@@ -376,7 +384,7 @@ function LineaTiempo({ estado }: { estado: number }) {
                     : "border-white/10 bg-[#0d1322] text-slate-500"
                 } ${actual ? "paso-actual" : ""}`}
               >
-                {hecho ? <IconoCheck className="h-4 w-4" /> : e.icono}
+                {marca(i)}
               </span>
               <span
                 className={`px-1 text-xs leading-tight ${
@@ -409,7 +417,7 @@ function LineaTiempo({ estado }: { estado: number }) {
                     : "border-white/10 bg-[#0d1322] text-slate-500"
                 } ${actual ? "paso-actual" : ""}`}
               >
-                {hecho ? <IconoCheck className="h-4 w-4" /> : e.icono}
+                {marca(i)}
               </span>
               <div className="pt-1.5">
                 <p
