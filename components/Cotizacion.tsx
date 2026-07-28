@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { IconoLaptop, IconoMonitor, IconoChat } from "@/components/Iconos";
+import { crearEnlaceWhatsApp } from "@/lib/config";
 
 const TIPOS = [
   { valor: "Laptop", icono: <IconoLaptop className="w-7 h-7" /> },
   { valor: "PC de escritorio", icono: <IconoMonitor className="w-7 h-7" /> },
 ];
-
-// Número de WhatsApp del negocio (código de país + número, sin «+»)
-const WHATSAPP_NEGOCIO = "59165073163";
 
 export default function Cotizacion() {
   const [tipo, setTipo] = useState("");
@@ -62,11 +60,11 @@ export default function Cotizacion() {
           `\u{1F527} Problema: ${problema.trim()}\n` + // 🔧
           `\u{1F9D1} Mi nombre: ${nombre.trim()}\n` + // 🧑
           `\u{1F4F1} Mi WhatsApp: ${whatsapp.trim()}`; // 📱
-        const link = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`;
+        const link = crearEnlaceWhatsApp(mensaje);
         setWaLink(link);
         setEnviada(true);
         // Abre WhatsApp automáticamente (si el navegador lo bloquea, queda el botón).
-        window.open(link, "_blank");
+        window.open(link, "_blank", "noopener,noreferrer");
       } else {
         const { error } = await res.json().catch(() => ({ error: "No se pudo enviar" }));
         setError(error);
@@ -130,16 +128,17 @@ export default function Cotizacion() {
         ) : (
           <form onSubmit={enviar} className="flex flex-col gap-6">
             {/* Tipo de equipo */}
-            <div>
-              <label className="mb-2.5 block text-sm font-semibold text-slate-300">
+            <fieldset>
+              <legend className="mb-2.5 block text-sm font-semibold text-slate-300">
                 1. ¿Qué tipo de equipo es?
-              </label>
+              </legend>
               <div className="grid grid-cols-2 gap-3.5">
                 {TIPOS.map((t) => (
                   <button
                     type="button"
                     key={t.valor}
                     onClick={() => setTipo(t.valor)}
+                    aria-pressed={tipo === t.valor}
                     className={`flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border p-5 transition ${
                       tipo === t.valor
                         ? "border-violet-500 bg-violet-500/10 text-slate-100 shadow-[0_0_20px_rgba(139,92,246,0.25)]"
@@ -151,23 +150,26 @@ export default function Cotizacion() {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             {/* Modelo */}
             <div>
-              <label className="mb-2.5 block text-sm font-semibold text-slate-300">
+              <label htmlFor="modelo-equipo" className="mb-2.5 block text-sm font-semibold text-slate-300">
                 2. ¿Qué modelo es tu equipo?
               </label>
               <input
+                id="modelo-equipo"
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}
                 disabled={noSabeModelo}
                 type="text"
+                autoComplete="off"
                 placeholder="Ej: HP Pavilion 15, Lenovo IdeaPad 3…"
                 className={`${inputClase} ${noSabeModelo ? "cursor-not-allowed opacity-40" : ""}`}
               />
-              <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-slate-400">
+              <label htmlFor="modelo-desconocido" className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-slate-400">
                 <input
+                  id="modelo-desconocido"
                   type="checkbox"
                   checked={noSabeModelo}
                   onChange={(e) => setNoSabeModelo(e.target.checked)}
@@ -179,10 +181,11 @@ export default function Cotizacion() {
 
             {/* Problema */}
             <div>
-              <label className="mb-2.5 block text-sm font-semibold text-slate-300">
+              <label htmlFor="problema-equipo" className="mb-2.5 block text-sm font-semibold text-slate-300">
                 3. ¿Qué necesitas? Explica el problema
               </label>
               <textarea
+                id="problema-equipo"
                 value={problema}
                 onChange={(e) => setProblema(e.target.value)}
                 required
@@ -195,23 +198,28 @@ export default function Cotizacion() {
             {/* Contacto */}
             <div className="grid gap-3.5 sm:grid-cols-2">
               <div>
-                <label className="mb-2.5 block text-sm font-semibold text-slate-300">Tu nombre</label>
+                <label htmlFor="nombre-cliente" className="mb-2.5 block text-sm font-semibold text-slate-300">4. Tu nombre</label>
                 <input
+                  id="nombre-cliente"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
                   type="text"
+                  autoComplete="name"
                   placeholder="Nombre completo"
                   className={inputClase}
                 />
               </div>
               <div>
-                <label className="mb-2.5 block text-sm font-semibold text-slate-300">Tu WhatsApp</label>
+                <label htmlFor="whatsapp-cliente" className="mb-2.5 block text-sm font-semibold text-slate-300">Tu WhatsApp</label>
                 <input
+                  id="whatsapp-cliente"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   required
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   placeholder="+591 …"
                   className={inputClase}
                 />
@@ -219,7 +227,7 @@ export default function Cotizacion() {
             </div>
 
             {error && (
-              <p className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+              <p className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300" role="alert">
                 ⚠️ {error}
               </p>
             )}

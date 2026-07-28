@@ -10,7 +10,7 @@ export async function GET(
 
   try {
     const filas = await sql`
-      SELECT codigo, cliente, equipo, servicio, recibido, estado, nota
+      SELECT codigo, equipo, servicio, recibido, estado, nota
       FROM ordenes
       WHERE UPPER(codigo) = UPPER(${codigo.trim()})
       LIMIT 1

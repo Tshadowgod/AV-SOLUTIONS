@@ -1,6 +1,8 @@
 import Link from "next/link";
 import ConsultaEstado from "@/components/ConsultaEstado";
 import Cotizacion from "@/components/Cotizacion";
+import Navegacion from "@/components/Navegacion";
+import { NEGOCIO, crearEnlaceWhatsApp } from "@/lib/config";
 import {
   IconoLlave,
   IconoChip,
@@ -12,7 +14,6 @@ import {
   IconoReloj,
   IconoCandado,
   IconoDocumento,
-  LogoAV,
 } from "@/components/Iconos";
 
 const SERVICIOS = [
@@ -44,42 +45,21 @@ const SERVICIOS = [
 
 const PASOS = [
   { titulo: "Recibido", detalle: "Registramos tu equipo y te entregamos tu código de orden." },
-  { titulo: "Diagnóstico", detalle: "Detectamos la falla y te confirmamos el costo antes de reparar." },
-  { titulo: "Reparación", detalle: "Manos a la obra: reparamos y probamos todo a fondo." },
-  { titulo: "Listo para recoger", detalle: "Consulta tu código aquí y pasa por tu equipo cuando quieras." },
+  { titulo: "En diagnóstico", detalle: "Detectamos la falla y te confirmamos el costo antes de reparar." },
+  { titulo: "En reparación", detalle: "Reparamos tu equipo y comprobamos que todo funcione correctamente." },
+  { titulo: "Listo para recoger", detalle: "Te indicamos en línea cuándo puedes pasar por tu equipo." },
+  { titulo: "Entregado", detalle: "Retiras tu equipo y recibes la garantía correspondiente." },
 ];
 
 export default function Inicio() {
   return (
     <>
-      {/* ══════════ NAVBAR ══════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-white/10 bg-[#070b14]/70 px-5 py-3.5 backdrop-blur-xl sm:px-16">
-        <Link href="#inicio" className="flex items-center gap-2 text-xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)" }}>
-          <LogoAV />
-          <span>
-            AV <b className="text-cyan-400">SOLUTIONS</b>
-          </span>
-        </Link>
-        <nav className="hidden gap-8 md:flex">
-          {[
-            ["#consulta", "Consultar estado"],
-            ["#cotizacion", "Cotización"],
-            ["#servicios", "Servicios"],
-            ["#proceso", "Proceso"],
-            ["#contacto", "Contacto"],
-          ].map(([href, texto]) => (
-            <a key={href} href={href} className="text-sm font-medium text-slate-400 transition hover:text-slate-100">
-              {texto}
-            </a>
-          ))}
-        </nav>
-        <a href="#consulta" className="btn-glow">
-          <span>Mi equipo</span>
-        </a>
-      </header>
+      <a href="#contenido" className="skip-link">Saltar al contenido</a>
+      <Navegacion />
 
+      <main id="contenido">
       {/* ══════════ HERO ══════════ */}
-      <section className="mx-auto max-w-4xl px-6 pb-14 pt-20 text-center sm:pt-28" id="inicio">
+      <section className="mx-auto max-w-5xl px-6 pb-14 pt-16 text-center sm:pt-24" id="inicio">
         <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
           <span className="pulse-dot" />
           Servicio técnico especializado
@@ -96,19 +76,19 @@ export default function Inicio() {
           Ingresa tu código de orden y descubre al instante si tu equipo ya está{" "}
           <b className="text-slate-100">listo para recoger</b>.
         </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a href="#cotizacion" className="btn-glow">
+        <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+          <a href="#consulta" className="btn-glow">
             <span className="px-2 py-1 text-base">
-              <IconoDocumento className="w-5 h-5" />
-              Realizar cotización
+              <IconoLupa />
+              Consultar mi equipo
             </span>
           </a>
           <a
-            href="#consulta"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-3 font-semibold text-slate-400 transition hover:border-white/30 hover:bg-white/5 hover:text-slate-100"
+            href="#cotizacion"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-8 py-3 font-semibold text-slate-300 transition hover:border-white/30 hover:bg-white/5 hover:text-slate-100"
           >
-            <IconoLupa />
-            Consultar mi equipo
+            <IconoDocumento className="h-5 w-5" />
+            Cotización gratuita
           </a>
         </div>
 
@@ -169,7 +149,7 @@ export default function Inicio() {
           </span>
           <h2 className="text-3xl font-bold sm:text-4xl">Así viaja tu equipo con nosotros</h2>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {PASOS.map((p, i) => (
             <div
               key={p.titulo}
@@ -201,11 +181,24 @@ export default function Inicio() {
             {
               icono: <IconoChat />,
               titulo: "WhatsApp",
-              detalle: "+591 65073163",
-              href: "https://wa.me/59165073163",
+              detalle: NEGOCIO.telefonoVisible,
+              apoyo: "Escríbenos para coordinar",
+              href: crearEnlaceWhatsApp("Hola AV SOLUTIONS, necesito información sobre sus servicios."),
             },
-            { icono: <IconoPin />, titulo: "Taller", detalle: "Radial 10, calle Godofredo Núñez" },
-            { icono: <IconoReloj />, titulo: "Horario", detalle: "Emergencias 24/7" },
+            {
+              icono: <IconoPin />,
+              titulo: "Cómo llegar",
+              detalle: NEGOCIO.direccion,
+              apoyo: "Abrir ubicación en Google Maps",
+              href: NEGOCIO.mapsUrl,
+            },
+            {
+              icono: <IconoReloj />,
+              titulo: "Atención",
+              detalle: "Emergencias 24/7",
+              apoyo: "Coordina la entrega o el recojo por WhatsApp",
+              href: crearEnlaceWhatsApp("Hola AV SOLUTIONS, quisiera coordinar una visita al taller."),
+            },
           ].map((c) => {
             const contenido = (
               <>
@@ -214,22 +207,20 @@ export default function Inicio() {
                 </div>
                 <h3 className="mb-1.5 font-bold">{c.titulo}</h3>
                 <p className="text-slate-400">{c.detalle}</p>
+                <p className="mt-3 text-sm font-semibold text-cyan-400">{c.apoyo} →</p>
               </>
             );
             const clases =
               "block rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45";
-            return c.href ? (
-              <a key={c.titulo} href={c.href} target="_blank" rel="noopener" className={clases}>
+            return (
+              <a key={c.titulo} href={c.href} target="_blank" rel="noopener noreferrer" className={clases}>
                 {contenido}
               </a>
-            ) : (
-              <div key={c.titulo} className={clases}>
-                {contenido}
-              </div>
             );
           })}
         </div>
       </section>
+      </main>
 
       {/* ══════════ FOOTER ══════════ */}
       <footer className="mt-auto border-t border-white/10 py-8 text-center text-sm text-slate-400">

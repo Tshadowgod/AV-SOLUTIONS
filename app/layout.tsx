@@ -13,9 +13,29 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "AV SOLUTIONS — Reparación y Mantenimiento de Computadoras",
+  title: "AV SOLUTIONS | Reparación de computadoras",
   description:
-    "Servicio técnico de computadoras. Consulta en línea el estado de tu equipo y entérate cuándo puedes pasar a recogerlo.",
+    "Servicio técnico de laptops y PCs. Solicita una cotización y consulta en línea el estado de tu equipo.",
+  keywords: [
+    "reparación de computadoras",
+    "servicio técnico",
+    "mantenimiento de laptops",
+    "reparación de PC",
+    "Santa Cruz Bolivia",
+  ],
+  openGraph: {
+    title: "AV SOLUTIONS | Servicio técnico de computadoras",
+    description:
+      "Reparamos laptops y PCs. Consulta en línea el estado de tu equipo o solicita una cotización gratuita.",
+    siteName: "AV SOLUTIONS",
+    locale: "es_BO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "AV SOLUTIONS | Servicio técnico de computadoras",
+    description: "Reparación, mantenimiento y seguimiento en línea de tu equipo.",
+  },
 };
 
 export default function RootLayout({

@@ -18,9 +18,11 @@ const ORDEN_VACIA: Orden = {
 };
 
 function fechaHoy() {
-  return new Date()
-    .toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })
-    .replace(" de 2", ", 2");
+  return new Intl.DateTimeFormat("es-BO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
 }
 
 export default function PaginaAdmin() {
@@ -47,7 +49,11 @@ export default function PaginaAdmin() {
   }, []);
 
   useEffect(() => {
-    cargarDatos();
+    const inicio = window.setTimeout(() => {
+      void cargarDatos();
+    }, 0);
+
+    return () => window.clearTimeout(inicio);
   }, [cargarDatos]);
 
   if (sesion === "cargando") {
