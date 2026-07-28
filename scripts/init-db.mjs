@@ -1,6 +1,10 @@
-/* Inicializa la base de datos en Neon:
-   crea la tabla de órdenes y carga datos de ejemplo si está vacía.
-   Uso:  node --env-file=.env.local scripts/init-db.mjs        */
+/* Carga datos de ejemplo en la base de datos (opcional).
+
+   Las tablas y columnas se crean solas la primera vez que la web consulta la
+   base de datos, así que este script solo hace falta si quieres arrancar con
+   cuatro órdenes de prueba para ver cómo se ve todo.
+
+   Uso:  node --env-file=.env.local scripts/init-db.mjs                     */
 
 import { neon } from "@neondatabase/serverless";
 
@@ -24,6 +28,9 @@ await sql`
     creado   TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )
 `;
+await sql`ALTER TABLE ordenes ADD COLUMN IF NOT EXISTS telefono TEXT NOT NULL DEFAULT ''`;
+await sql`ALTER TABLE ordenes ADD COLUMN IF NOT EXISTS actualizado TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+await sql`CREATE INDEX IF NOT EXISTS ordenes_codigo_mayusculas ON ordenes (UPPER(codigo))`;
 console.log("✅ Tabla 'ordenes' lista");
 
 await sql`
@@ -45,11 +52,11 @@ const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM ordenes`;
 
 if (total === 0) {
   await sql`
-    INSERT INTO ordenes (codigo, cliente, equipo, servicio, recibido, estado, nota) VALUES
-    ('AV-1001', 'Juan Pérez', 'Laptop HP Pavilion 15', 'Cambio de pantalla', '10 de julio, 2026', 3, 'Puedes pasar en horario de atención. Trae tu comprobante.'),
-    ('AV-1002', 'María López', 'PC de escritorio (torre)', 'Formateo + instalación de programas', '12 de julio, 2026', 2, ''),
-    ('AV-1003', 'Carlos Mamani', 'Laptop Lenovo IdeaPad 3', 'Mantenimiento preventivo + cambio de pasta térmica', '13 de julio, 2026', 1, ''),
-    ('AV-1004', 'Ana Gutiérrez', 'Laptop Dell Inspiron 14', 'Cambio de disco duro a SSD', '8 de julio, 2026', 4, 'Entregado el 11 de julio. ¡Gracias por confiar en nosotros!')
+    INSERT INTO ordenes (codigo, cliente, telefono, equipo, servicio, recibido, estado, nota) VALUES
+    ('AV-1001', 'Juan Pérez', '59171234567', 'Laptop HP Pavilion 15', 'Cambio de pantalla', '10 de julio, 2026', 3, 'Puedes pasar en horario de atención. Trae tu comprobante.'),
+    ('AV-1002', 'María López', '59176543210', 'PC de escritorio (torre)', 'Formateo + instalación de programas', '12 de julio, 2026', 2, ''),
+    ('AV-1003', 'Carlos Mamani', '', 'Laptop Lenovo IdeaPad 3', 'Mantenimiento preventivo + cambio de pasta térmica', '13 de julio, 2026', 1, ''),
+    ('AV-1004', 'Ana Gutiérrez', '59169998888', 'Laptop Dell Inspiron 14', 'Cambio de disco duro a SSD', '8 de julio, 2026', 4, 'Entregado el 11 de julio. ¡Gracias por confiar en nosotros!')
   `;
   console.log("✅ Datos de ejemplo cargados (4 órdenes)");
 } else {

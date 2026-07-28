@@ -10,6 +10,7 @@ const ETIQUETAS_ESTADO = ESTADOS.map((e) => `${e.icono} ${e.nombre}`);
 const ORDEN_VACIA: Orden = {
   codigo: "",
   cliente: "",
+  telefono: "",
   equipo: "",
   servicio: "",
   recibido: "",
@@ -237,6 +238,7 @@ function Panel({
     setForm({
       codigo: siguienteCodigo(),
       cliente: c.nombre,
+      telefono: c.whatsapp,
       equipo: `${c.tipo}${modelo}`,
       servicio: c.problema,
       recibido: fechaHoy(),
