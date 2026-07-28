@@ -1,0 +1,13 @@
+{
+  "name": "neon-local-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local dev-only HTTP shim that emulates Neon's SQL-over-HTTP endpoint (@neondatabase/serverless) and forwards queries to a local PostgreSQL. Not used in production.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}
