@@ -39,8 +39,11 @@ export default function ConsultaEstado() {
 
   return (
     <section className="px-5 pb-20 pt-8" id="consulta">
-      <div className="beam-top mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.045] p-7 shadow-2xl shadow-black/45 backdrop-blur-xl sm:p-13">
+      <div className="beam-top mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.045] p-7 shadow-2xl shadow-black/45 backdrop-blur-xl sm:p-12">
         <div className="mb-8 text-center">
+          <span className="mb-4 inline-block rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-400">
+            Consulta en línea
+          </span>
           <h2 className="mb-2.5 text-2xl font-bold sm:text-3xl">
             ¿Ya puedo recoger mi equipo?
           </h2>
@@ -53,21 +56,28 @@ export default function ConsultaEstado() {
           </p>
         </div>
 
-        <form onSubmit={consultar} className="mx-auto flex max-w-xl flex-col gap-3.5 sm:flex-row" autoComplete="off">
+        <form
+          onSubmit={consultar}
+          className="mx-auto flex max-w-xl flex-col gap-3.5 sm:flex-row"
+          autoComplete="off"
+        >
           <div className="flex flex-1 items-center rounded-full border border-white/10 bg-[#0b1020] transition focus-within:border-violet-500 focus-within:shadow-[0_0_0_4px_rgba(139,92,246,0.18),0_0_22px_rgba(139,92,246,0.28)]">
-            <span className="ml-4 text-slate-400"><IconoLupa /></span>
+            <span className="ml-4 text-slate-400">
+              <IconoLupa />
+            </span>
             <input
               value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
+              onChange={(e) => setCodigo(e.target.value.toUpperCase())}
               type="text"
               placeholder="Código de orden…"
               maxLength={12}
               required
+              aria-label="Código de orden"
               className="flex-1 bg-transparent px-3 py-3.5 uppercase text-slate-100 outline-none placeholder:normal-case placeholder:text-slate-500"
             />
           </div>
           <button type="submit" className="btn-glow" disabled={cargando}>
-            <span className="justify-center">Consultar</span>
+            <span className="justify-center">{cargando ? "Buscando…" : "Consultar"}</span>
           </button>
         </form>
 
@@ -82,11 +92,15 @@ export default function ConsultaEstado() {
 
         {noEncontrada && (
           <div className="aparecer mt-9 rounded-2xl border border-dashed border-pink-500/40 bg-pink-500/5 p-8 text-center">
-            <span className="mb-2 block text-4xl">🤔</span>
+            <span className="mb-2 block text-4xl" aria-hidden="true">
+              🤔
+            </span>
             <h3 className="mb-1.5 text-lg font-bold">No encontramos esa orden</h3>
             <p className="text-sm text-slate-400">
               Revisa que el código esté bien escrito. Si el problema continúa,{" "}
-              <a href="#contacto" className="text-cyan-400 underline-offset-2 hover:underline">contáctanos</a>{" "}
+              <a href="#contacto" className="text-cyan-400 underline-offset-2 hover:underline">
+                contáctanos
+              </a>{" "}
               y te ayudamos.
             </p>
           </div>
@@ -94,7 +108,9 @@ export default function ConsultaEstado() {
 
         {errorServidor && (
           <div className="aparecer mt-9 rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-8 text-center">
-            <span className="mb-2 block text-4xl">⚠️</span>
+            <span className="mb-2 block text-4xl" aria-hidden="true">
+              ⚠️
+            </span>
             <h3 className="mb-1.5 text-lg font-bold">Algo salió mal</h3>
             <p className="text-sm text-slate-400">
               No pudimos consultar en este momento. Intenta de nuevo en unos segundos.
@@ -119,7 +135,8 @@ function Resultado({ orden }: { orden: Orden }) {
   if (esListo) {
     titulo = "¡Tu equipo está listo! 🎉";
     mensaje = "Ya puedes pasar a recogerlo en nuestro horario de atención.";
-    claseBanner = "border-emerald-400/35 bg-emerald-400/10 shadow-[inset_0_0_34px_rgba(52,211,153,0.12)]";
+    claseBanner =
+      "border-emerald-400/35 bg-emerald-400/10 shadow-[inset_0_0_34px_rgba(52,211,153,0.12)]";
     claseTitulo = "text-emerald-400";
   } else if (esEntregado) {
     titulo = "Equipo entregado";
@@ -144,7 +161,9 @@ function Resultado({ orden }: { orden: Orden }) {
     <div className="aparecer mt-9" aria-live="polite">
       {/* Banner de estado */}
       <div className={`mb-6 flex items-center gap-4 rounded-2xl border p-5 ${claseBanner}`}>
-        <span className="text-4xl">{estado.icono}</span>
+        <span className="text-4xl" aria-hidden="true">
+          {estado.icono}
+        </span>
         <div>
           <h3 className={`text-xl font-bold ${claseTitulo}`}>{titulo}</h3>
           <p className="text-sm text-slate-400">{mensaje}</p>
@@ -154,7 +173,10 @@ function Resultado({ orden }: { orden: Orden }) {
       {/* Datos de la orden */}
       <div className="mb-8 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
         {datos.map(([etiqueta, valor]) => (
-          <div key={etiqueta} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
+          <div
+            key={etiqueta}
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5"
+          >
             <span className="mb-1 block text-[0.7rem] font-semibold uppercase tracking-widest text-slate-400">
               {etiqueta}
             </span>
@@ -163,8 +185,41 @@ function Resultado({ orden }: { orden: Orden }) {
         ))}
       </div>
 
-      {/* Línea de tiempo */}
-      <div className="relative mx-1.5 flex justify-between">
+      {/* Línea de tiempo — vertical en móvil, horizontal en pantallas grandes */}
+      <div className="timeline-movil sm:hidden">
+        {ESTADOS.map((e, i) => {
+          const hecho = i < orden.estado;
+          const actual = i === orden.estado;
+          return (
+            <div
+              key={e.nombre}
+              className={`paso-item ${hecho ? "hecho" : ""}`}
+            >
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm ${
+                  hecho || actual
+                    ? "border-transparent bg-gradient-to-br from-violet-500 to-cyan-400 text-white"
+                    : "border-white/10 bg-[#0d1322] text-slate-400"
+                } ${actual ? "paso-actual" : ""}`}
+              >
+                {hecho ? "✓" : e.icono}
+              </div>
+              <div className="pt-1">
+                <span
+                  className={`text-sm ${hecho || actual ? "font-semibold text-slate-100" : "text-slate-400"}`}
+                >
+                  {e.nombre}
+                </span>
+                {actual && (
+                  <span className="mt-0.5 block text-xs text-cyan-400">Estado actual</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="relative mx-1.5 hidden justify-between sm:flex">
         <div className="absolute left-[6%] right-[6%] top-4 h-[3px] rounded bg-white/10" />
         <div
           className="absolute left-[6%] top-4 h-[3px] rounded bg-gradient-to-r from-violet-500 to-cyan-400 shadow-[0_0_12px_rgba(139,92,246,0.7)] transition-all duration-700"

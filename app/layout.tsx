@@ -15,7 +15,14 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "AV SOLUTIONS — Reparación y Mantenimiento de Computadoras",
   description:
-    "Servicio técnico de computadoras. Consulta en línea el estado de tu equipo y entérate cuándo puedes pasar a recogerlo.",
+    "Servicio técnico de computadoras en Santa Cruz. Consulta en línea el estado de tu equipo, cotiza por WhatsApp y entérate cuándo puedes recogerlo.",
+  openGraph: {
+    title: "AV SOLUTIONS — Reparación de Computadoras",
+    description:
+      "Consulta el estado de tu equipo en línea. Mantenimiento, reparación y upgrades con garantía.",
+    locale: "es_BO",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

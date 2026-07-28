@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { IconoLaptop, IconoMonitor, IconoChat } from "@/components/Iconos";
+import { WHATSAPP_NUMERO } from "@/lib/negocio";
 
 const TIPOS = [
   { valor: "Laptop", icono: <IconoLaptop className="w-7 h-7" /> },
   { valor: "PC de escritorio", icono: <IconoMonitor className="w-7 h-7" /> },
 ];
-
-// Número de WhatsApp del negocio (código de país + número, sin «+»)
-const WHATSAPP_NEGOCIO = "59165073163";
 
 export default function Cotizacion() {
   const [tipo, setTipo] = useState("");
@@ -62,7 +60,7 @@ export default function Cotizacion() {
           `\u{1F527} Problema: ${problema.trim()}\n` + // 🔧
           `\u{1F9D1} Mi nombre: ${nombre.trim()}\n` + // 🧑
           `\u{1F4F1} Mi WhatsApp: ${whatsapp.trim()}`; // 📱
-        const link = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`;
+        const link = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(mensaje)}`;
         setWaLink(link);
         setEnviada(true);
         // Abre WhatsApp automáticamente (si el navegador lo bloquea, queda el botón).

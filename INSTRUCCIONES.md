@@ -14,8 +14,8 @@ Así puedes responderle de inmediato desde tu WhatsApp. No hace falta ninguna
 clave ni servicio externo.
 
 > **¿Quieres cambiar el número que recibe las cotizaciones?**
-> Está en el archivo `components/Cotizacion.tsx`, en la línea
-> `const WHATSAPP_NEGOCIO = "59165073163";` (código de país + número, sin «+»).
+> Está en el archivo `lib/negocio.ts`, en la constante
+> `WHATSAPP_NUMERO` (código de país + número, sin «+»).
 
 ## 🔐 Panel de administración
 

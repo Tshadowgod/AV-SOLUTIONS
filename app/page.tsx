@@ -1,6 +1,8 @@
 import Link from "next/link";
 import ConsultaEstado from "@/components/ConsultaEstado";
 import Cotizacion from "@/components/Cotizacion";
+import Navbar from "@/components/Navbar";
+import WhatsAppFlotante from "@/components/WhatsAppFlotante";
 import {
   IconoLlave,
   IconoChip,
@@ -12,8 +14,13 @@ import {
   IconoReloj,
   IconoCandado,
   IconoDocumento,
-  LogoAV,
 } from "@/components/Iconos";
+import {
+  WHATSAPP_DISPLAY,
+  WHATSAPP_URL,
+  DIRECCION,
+  MAPS_URL,
+} from "@/lib/negocio";
 
 const SERVICIOS = [
   {
@@ -49,40 +56,18 @@ const PASOS = [
   { titulo: "Listo para recoger", detalle: "Consulta tu código aquí y pasa por tu equipo cuando quieras." },
 ];
 
+const EQUIPOS = ["Laptops", "PCs de escritorio", "All-in-one", "Mac y Windows"];
+
 export default function Inicio() {
   return (
     <>
-      {/* ══════════ NAVBAR ══════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-white/10 bg-[#070b14]/70 px-5 py-3.5 backdrop-blur-xl sm:px-16">
-        <Link href="#inicio" className="flex items-center gap-2 text-xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)" }}>
-          <LogoAV />
-          <span>
-            AV <b className="text-cyan-400">SOLUTIONS</b>
-          </span>
-        </Link>
-        <nav className="hidden gap-8 md:flex">
-          {[
-            ["#consulta", "Consultar estado"],
-            ["#cotizacion", "Cotización"],
-            ["#servicios", "Servicios"],
-            ["#proceso", "Proceso"],
-            ["#contacto", "Contacto"],
-          ].map(([href, texto]) => (
-            <a key={href} href={href} className="text-sm font-medium text-slate-400 transition hover:text-slate-100">
-              {texto}
-            </a>
-          ))}
-        </nav>
-        <a href="#consulta" className="btn-glow">
-          <span>Mi equipo</span>
-        </a>
-      </header>
+      <Navbar />
 
       {/* ══════════ HERO ══════════ */}
-      <section className="mx-auto max-w-4xl px-6 pb-14 pt-20 text-center sm:pt-28" id="inicio">
+      <section className="mx-auto max-w-4xl px-6 pb-14 pt-16 text-center sm:pt-24" id="inicio">
         <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
           <span className="pulse-dot" />
-          Servicio técnico especializado
+          Servicio técnico especializado · Emergencias 24/7
         </div>
         <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">
           Reparamos tu computadora.
@@ -91,15 +76,27 @@ export default function Inicio() {
             Tú sigues su estado en línea.
           </span>
         </h1>
-        <p className="mx-auto mb-9 mt-6 max-w-2xl text-lg text-slate-400">
+        <p className="mx-auto mb-6 mt-6 max-w-2xl text-lg text-slate-400">
           Mantenimiento, reparación y optimización de laptops y PCs de escritorio.
           Ingresa tu código de orden y descubre al instante si tu equipo ya está{" "}
           <b className="text-slate-100">listo para recoger</b>.
         </p>
+
+        <div className="mb-9 flex flex-wrap justify-center gap-2">
+          {EQUIPOS.map((eq) => (
+            <span
+              key={eq}
+              className="rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1 text-xs font-medium text-slate-400"
+            >
+              {eq}
+            </span>
+          ))}
+        </div>
+
         <div className="flex flex-wrap justify-center gap-4">
           <a href="#cotizacion" className="btn-glow">
             <span className="px-2 py-1 text-base">
-              <IconoDocumento className="w-5 h-5" />
+              <IconoDocumento className="h-5 w-5" />
               Realizar cotización
             </span>
           </a>
@@ -144,6 +141,9 @@ export default function Inicio() {
             Servicios
           </span>
           <h2 className="text-3xl font-bold sm:text-4xl">Lo que hacemos por tu equipo</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-400">
+            Diagnóstico honesto, repuestos de calidad y trabajo garantizado en cada reparación.
+          </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {SERVICIOS.map((s) => (
@@ -195,17 +195,31 @@ export default function Inicio() {
             Contacto
           </span>
           <h2 className="text-3xl font-bold sm:text-4xl">¿Dudas? Hablemos</h2>
+          <p className="mx-auto mt-3 max-w-xl text-slate-400">
+            Estamos en Santa Cruz. Escríbenos por WhatsApp o pasa por el taller cuando te convenga.
+          </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-3">
           {[
             {
               icono: <IconoChat />,
               titulo: "WhatsApp",
-              detalle: "+591 65073163",
-              href: "https://wa.me/59165073163",
+              detalle: WHATSAPP_DISPLAY,
+              href: WHATSAPP_URL,
+              accion: "Escribir ahora →",
             },
-            { icono: <IconoPin />, titulo: "Taller", detalle: "Radial 10, calle Godofredo Núñez" },
-            { icono: <IconoReloj />, titulo: "Horario", detalle: "Emergencias 24/7" },
+            {
+              icono: <IconoPin />,
+              titulo: "Taller",
+              detalle: DIRECCION,
+              href: MAPS_URL,
+              accion: "Ver en mapa →",
+            },
+            {
+              icono: <IconoReloj />,
+              titulo: "Horario",
+              detalle: "Lun–Sáb 9:00–19:00 · Emergencias 24/7",
+            },
           ].map((c) => {
             const contenido = (
               <>
@@ -214,12 +228,15 @@ export default function Inicio() {
                 </div>
                 <h3 className="mb-1.5 font-bold">{c.titulo}</h3>
                 <p className="text-slate-400">{c.detalle}</p>
+                {c.accion && (
+                  <p className="mt-3 text-sm font-medium text-cyan-400">{c.accion}</p>
+                )}
               </>
             );
             const clases =
               "block rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45";
             return c.href ? (
-              <a key={c.titulo} href={c.href} target="_blank" rel="noopener" className={clases}>
+              <a key={c.titulo} href={c.href} target="_blank" rel="noopener noreferrer" className={clases}>
                 {contenido}
               </a>
             ) : (
@@ -231,6 +248,8 @@ export default function Inicio() {
         </div>
       </section>
 
+      <WhatsAppFlotante />
+
       {/* ══════════ FOOTER ══════════ */}
       <footer className="mt-auto border-t border-white/10 py-8 text-center text-sm text-slate-400">
         <p className="flex flex-wrap items-center justify-center gap-1.5">
@@ -240,7 +259,7 @@ export default function Inicio() {
             className="inline-flex items-center gap-1 opacity-70 transition hover:text-cyan-400 hover:opacity-100"
             title="Acceso administrador"
           >
-            <IconoCandado className="w-3.5 h-3.5" /> Admin
+            <IconoCandado className="h-3.5 w-3.5" /> Admin
           </Link>
         </p>
       </footer>

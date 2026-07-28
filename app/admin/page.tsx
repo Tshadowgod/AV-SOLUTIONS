@@ -47,8 +47,27 @@ export default function PaginaAdmin() {
   }, []);
 
   useEffect(() => {
-    cargarDatos();
-  }, [cargarDatos]);
+    let cancelado = false;
+    (async () => {
+      const [resOrd, resCot] = await Promise.all([
+        fetch("/api/admin/ordenes"),
+        fetch("/api/admin/cotizaciones"),
+      ]);
+      if (cancelado) return;
+      if (resOrd.status === 401) {
+        setSesion("sin-sesion");
+        return;
+      }
+      if (resOrd.ok) {
+        setOrdenes(await resOrd.json());
+        if (resCot.ok) setCotizaciones(await resCot.json());
+        setSesion("activa");
+      }
+    })();
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   if (sesion === "cargando") {
     return (
