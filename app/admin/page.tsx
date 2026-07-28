@@ -47,7 +47,14 @@ export default function PaginaAdmin() {
   }, []);
 
   useEffect(() => {
-    cargarDatos();
+    let activo = true;
+    (async () => {
+      const ok = await cargarDatos();
+      if (!activo && !ok) return;
+    })();
+    return () => {
+      activo = false;
+    };
   }, [cargarDatos]);
 
   if (sesion === "cargando") {
@@ -350,7 +357,7 @@ function Panel({
           { num: stats.entregado, etiqueta: "Entregados", color: "text-slate-400" },
         ].map((s) => (
           <div key={s.etiqueta} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 backdrop-blur">
-            <span className={`block text-3xl font-bold ${s.color}`} style={{ fontFamily: "var(--font-space-grotesk)" }}>
+            <span className={`block text-3xl font-bold ${s.color}`} style={{ fontFamily: "var(--font-syne)" }}>
               {s.num}
             </span>
             <span className="text-xs text-slate-400">{s.etiqueta}</span>
@@ -464,7 +471,7 @@ function Panel({
                   : "border-white/10 bg-white/[0.03] hover:border-violet-500/40"
               }`}
             >
-              <span className="font-bold text-cyan-400" style={{ fontFamily: "var(--font-space-grotesk)" }}>
+              <span className="font-bold text-teal-300" style={{ fontFamily: "var(--font-syne)" }}>
                 {o.codigo}
               </span>
               <div className="min-w-0">

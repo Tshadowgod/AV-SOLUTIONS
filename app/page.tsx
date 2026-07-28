@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import ConsultaEstado from "@/components/ConsultaEstado";
 import Cotizacion from "@/components/Cotizacion";
+import Nav from "@/components/Nav";
 import {
   IconoLlave,
   IconoChip,
@@ -14,6 +16,7 @@ import {
   IconoDocumento,
   LogoAV,
 } from "@/components/Iconos";
+import heroTaller from "@/public/hero-taller.jpg";
 
 const SERVICIOS = [
   {
@@ -52,195 +55,200 @@ const PASOS = [
 export default function Inicio() {
   return (
     <>
-      {/* ══════════ NAVBAR ══════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-white/10 bg-[#070b14]/70 px-5 py-3.5 backdrop-blur-xl sm:px-16">
-        <Link href="#inicio" className="flex items-center gap-2 text-xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)" }}>
-          <LogoAV />
-          <span>
-            AV <b className="text-cyan-400">SOLUTIONS</b>
-          </span>
-        </Link>
-        <nav className="hidden gap-8 md:flex">
-          {[
-            ["#consulta", "Consultar estado"],
-            ["#cotizacion", "Cotización"],
-            ["#servicios", "Servicios"],
-            ["#proceso", "Proceso"],
-            ["#contacto", "Contacto"],
-          ].map(([href, texto]) => (
-            <a key={href} href={href} className="text-sm font-medium text-slate-400 transition hover:text-slate-100">
-              {texto}
-            </a>
-          ))}
-        </nav>
-        <a href="#consulta" className="btn-glow">
-          <span>Mi equipo</span>
-        </a>
-      </header>
+      <Nav />
 
-      {/* ══════════ HERO ══════════ */}
-      <section className="mx-auto max-w-4xl px-6 pb-14 pt-20 text-center sm:pt-28" id="inicio">
-        <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-medium text-slate-400 backdrop-blur">
-          <span className="pulse-dot" />
-          Servicio técnico especializado
-        </div>
-        <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">
-          Reparamos tu computadora.
-          <br />
-          <span className="bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-transparent">
-            Tú sigues su estado en línea.
-          </span>
-        </h1>
-        <p className="mx-auto mb-9 mt-6 max-w-2xl text-lg text-slate-400">
-          Mantenimiento, reparación y optimización de laptops y PCs de escritorio.
-          Ingresa tu código de orden y descubre al instante si tu equipo ya está{" "}
-          <b className="text-slate-100">listo para recoger</b>.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a href="#cotizacion" className="btn-glow">
-            <span className="px-2 py-1 text-base">
-              <IconoDocumento className="w-5 h-5" />
-              Realizar cotización
-            </span>
-          </a>
-          <a
-            href="#consulta"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-3 font-semibold text-slate-400 transition hover:border-white/30 hover:bg-white/5 hover:text-slate-100"
+      {/* ══════════ HERO — full-bleed taller ══════════ */}
+      <section
+        className="relative flex min-h-[100svh] items-end overflow-hidden pb-16 pt-28 sm:items-center sm:pb-0 sm:pt-20"
+        id="inicio"
+      >
+        <Image
+          src={heroTaller}
+          alt="Laptop abierta en el taller técnico de AV SOLUTIONS"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#0c1222]/92 via-[#0c1222]/72 to-[#0c1222]/25"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-[#0c1222]/55 via-transparent to-[#0c1222]/35"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-5 sm:px-8">
+          <p
+            className="anim-revelar mb-3 text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl"
+            style={{ fontFamily: "var(--font-syne)" }}
           >
-            <IconoLupa />
-            Consultar mi equipo
-          </a>
+            AV <span className="text-teal-300">SOLUTIONS</span>
+          </p>
+          <h1 className="anim-revelar anim-delay-1 max-w-xl text-2xl font-semibold leading-snug text-white/95 sm:text-3xl lg:text-4xl">
+            Reparamos tu computadora en Santa Cruz.
+          </h1>
+          <p className="anim-revelar anim-delay-2 mt-4 max-w-lg text-base text-white/75 sm:text-lg">
+            Cotiza por WhatsApp y sigue el estado de tu equipo en línea con tu código de orden.
+          </p>
+          <div className="anim-revelar anim-delay-3 mt-8 flex flex-wrap gap-3">
+            <a href="#cotizacion" className="btn-taller">
+              <IconoDocumento className="h-5 w-5" />
+              Cotizar ahora
+            </a>
+            <a href="#consulta" className="btn-ghost">
+              <IconoLupa />
+              Consultar mi equipo
+            </a>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-11">
+      {/* Confianza — fuera del primer viewport */}
+      <section className="border-b border-[var(--line)] bg-[var(--surface)]" aria-label="Datos del taller">
+        <div className="mx-auto grid max-w-6xl grid-cols-3 divide-x divide-[var(--line)] px-5 py-7 sm:px-8">
           {[
             ["+500", "Equipos reparados"],
-            ["24-72h", "Tiempo promedio"],
+            ["24–72 h", "Tiempo promedio"],
             ["30 días", "Garantía"],
           ].map(([num, etiqueta]) => (
-            <div key={etiqueta} className="text-center">
+            <div key={etiqueta} className="px-2 text-center sm:px-6">
               <span
-                className="block bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent"
-                style={{ fontFamily: "var(--font-space-grotesk)" }}
+                className="block text-xl font-bold text-[var(--accent)] sm:text-3xl"
+                style={{ fontFamily: "var(--font-syne)" }}
               >
                 {num}
               </span>
-              <span className="text-sm text-slate-400">{etiqueta}</span>
+              <span className="text-xs text-[var(--muted)] sm:text-sm">{etiqueta}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ══════════ CONSULTA ══════════ */}
       <ConsultaEstado />
-
-      {/* ══════════ COTIZACIÓN ══════════ */}
       <Cotizacion />
 
       {/* ══════════ SERVICIOS ══════════ */}
-      <section className="mx-auto max-w-6xl px-6 py-16" id="servicios">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
+      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8" id="servicios">
+        <div className="mb-12 max-w-2xl">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
             Servicios
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">Lo que hacemos por tu equipo</h2>
+          </p>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Lo que hacemos por tu equipo
+          </h2>
+          <p className="mt-3 text-[var(--muted)]">
+            Del mantenimiento rápido a la reparación profunda: trabajamos laptops y PCs de escritorio.
+          </p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICIOS.map((s) => (
-            <article
-              key={s.titulo}
-              className="group rounded-2xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45 hover:shadow-[0_18px_44px_rgba(0,0,0,0.4),0_0_30px_rgba(139,92,246,0.12)]"
-            >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-cyan-400/15 text-cyan-400 transition group-hover:scale-110 group-hover:text-violet-300">
+        <div className="grid gap-x-10 gap-y-12 sm:grid-cols-2">
+          {SERVICIOS.map((s, i) => (
+            <article key={s.titulo} className="group flex gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--accent)]/10 text-[var(--accent)] transition group-hover:bg-[var(--accent)] group-hover:text-white">
                 {s.icono}
               </div>
-              <h3 className="mb-2 text-lg font-bold">{s.titulo}</h3>
-              <p className="text-sm text-slate-400">{s.detalle}</p>
+              <div>
+                <h3 className="mb-1.5 text-lg font-bold">
+                  <span className="mr-2 text-sm font-semibold text-[var(--accent)]" style={{ fontFamily: "var(--font-syne)" }}>
+                    0{i + 1}
+                  </span>
+                  {s.titulo}
+                </h3>
+                <p className="text-[var(--muted)] leading-relaxed">{s.detalle}</p>
+              </div>
             </article>
           ))}
         </div>
       </section>
 
       {/* ══════════ PROCESO ══════════ */}
-      <section className="mx-auto max-w-6xl px-6 py-16" id="proceso">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
-            Proceso
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">Así viaja tu equipo con nosotros</h2>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {PASOS.map((p, i) => (
+      <section className="border-y border-[var(--line)] bg-[var(--surface)] py-20" id="proceso">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="mb-12 max-w-2xl">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
+              Proceso
+            </p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Así viaja tu equipo con nosotros
+            </h2>
+            <p className="mt-3 text-[var(--muted)]">
+              Transparencia de punta a punta: siempre sabes en qué paso está tu máquina.
+            </p>
+          </div>
+          <ol className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             <div
-              key={p.titulo}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-7 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/40"
-            >
-              <span
-                className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 text-lg font-bold text-white shadow-[0_6px_18px_rgba(139,92,246,0.35)]"
-                style={{ fontFamily: "var(--font-space-grotesk)" }}
-              >
-                {i + 1}
-              </span>
-              <h3 className="mb-1.5 font-bold">{p.titulo}</h3>
-              <p className="text-sm text-slate-400">{p.detalle}</p>
-            </div>
-          ))}
+              className="anim-barra pointer-events-none absolute left-0 right-0 top-5 hidden h-0.5 bg-[var(--line)] lg:block"
+              aria-hidden="true"
+            />
+            {PASOS.map((p, i) => (
+              <li key={p.titulo} className="relative">
+                <span
+                  className="relative z-10 mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--ink)] text-sm font-bold text-white"
+                  style={{ fontFamily: "var(--font-syne)" }}
+                >
+                  {i + 1}
+                </span>
+                <h3 className="mb-1.5 font-bold">{p.titulo}</h3>
+                <p className="text-sm leading-relaxed text-[var(--muted)]">{p.detalle}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
       {/* ══════════ CONTACTO ══════════ */}
-      <section className="mx-auto max-w-6xl px-6 py-16" id="contacto">
-        <div className="mb-11 text-center">
-          <span className="mb-4 inline-block rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400">
+      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8" id="contacto">
+        <div className="mb-12 max-w-2xl">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
             Contacto
-          </span>
-          <h2 className="text-3xl font-bold sm:text-4xl">¿Dudas? Hablemos</h2>
+          </p>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Dudas? Hablemos</h2>
+          <p className="mt-3 text-[var(--muted)]">
+            Estamos en Radial 10. Escríbenos por WhatsApp o pásate al taller.
+          </p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-3">
-          {[
-            {
-              icono: <IconoChat />,
-              titulo: "WhatsApp",
-              detalle: "+591 65073163",
-              href: "https://wa.me/59165073163",
-            },
-            { icono: <IconoPin />, titulo: "Taller", detalle: "Radial 10, calle Godofredo Núñez" },
-            { icono: <IconoReloj />, titulo: "Horario", detalle: "Emergencias 24/7" },
-          ].map((c) => {
-            const contenido = (
-              <>
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-cyan-400/15 text-cyan-400">
-                  {c.icono}
-                </div>
-                <h3 className="mb-1.5 font-bold">{c.titulo}</h3>
-                <p className="text-slate-400">{c.detalle}</p>
-              </>
-            );
-            const clases =
-              "block rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:border-violet-500/45";
-            return c.href ? (
-              <a key={c.titulo} href={c.href} target="_blank" rel="noopener" className={clases}>
-                {contenido}
-              </a>
-            ) : (
-              <div key={c.titulo} className={clases}>
-                {contenido}
-              </div>
-            );
-          })}
+        <div className="grid gap-8 sm:grid-cols-3">
+          <a
+            href="https://wa.me/59165073163"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col gap-3 border-t-2 border-[var(--accent)] pt-5 transition hover:opacity-90"
+          >
+            <span className="text-[var(--accent)]"><IconoChat /></span>
+            <h3 className="font-bold">WhatsApp</h3>
+            <p className="text-[var(--muted)] group-hover:text-[var(--accent)]">+591 65073163</p>
+          </a>
+          <div className="flex flex-col gap-3 border-t-2 border-[var(--line)] pt-5">
+            <span className="text-[var(--accent)]"><IconoPin /></span>
+            <h3 className="font-bold">Taller</h3>
+            <p className="text-[var(--muted)]">Radial 10, calle Godofredo Núñez</p>
+          </div>
+          <div className="flex flex-col gap-3 border-t-2 border-[var(--line)] pt-5">
+            <span className="text-[var(--accent)]"><IconoReloj /></span>
+            <h3 className="font-bold">Horario</h3>
+            <p className="text-[var(--muted)]">Emergencias 24/7</p>
+          </div>
         </div>
       </section>
 
       {/* ══════════ FOOTER ══════════ */}
-      <footer className="mt-auto border-t border-white/10 py-8 text-center text-sm text-slate-400">
-        <p className="flex flex-wrap items-center justify-center gap-1.5">
-          © 2026 AV SOLUTIONS · Reparación y mantenimiento de computadoras ·
+      <footer className="mt-auto border-t border-[var(--line)] bg-[var(--ink)] py-10 text-center text-sm text-white/60">
+        <div className="mb-3 flex items-center justify-center gap-2 text-white">
+          <LogoAV className="h-7 w-7" />
+          <span className="font-bold" style={{ fontFamily: "var(--font-syne)" }}>
+            AV <span className="text-teal-300">SOLUTIONS</span>
+          </span>
+        </div>
+        <p className="flex flex-wrap items-center justify-center gap-1.5 px-4">
+          © 2026 · Reparación y mantenimiento de computadoras · Santa Cruz
+          <span className="mx-1 hidden sm:inline">·</span>
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1 opacity-70 transition hover:text-cyan-400 hover:opacity-100"
+            className="inline-flex items-center gap-1 opacity-70 transition hover:text-teal-300 hover:opacity-100"
             title="Acceso administrador"
           >
-            <IconoCandado className="w-3.5 h-3.5" /> Admin
+            <IconoCandado className="h-3.5 w-3.5" /> Admin
           </Link>
         </p>
       </footer>

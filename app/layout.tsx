@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Syne, Figtree } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "AV SOLUTIONS — Reparación y Mantenimiento de Computadoras",
   description:
-    "Servicio técnico de computadoras. Consulta en línea el estado de tu equipo y entérate cuándo puedes pasar a recogerlo.",
+    "Taller técnico en Santa Cruz. Reparamos laptops y PCs, cotiza por WhatsApp y consulta el estado de tu equipo en línea.",
 };
 
 export default function RootLayout({
@@ -26,17 +28,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${syne.variable} ${figtree.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {/* Fondo con blobs flotantes */}
-        <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-          <div className="blob w-[480px] h-[480px] bg-violet-800 -top-36 -left-24" />
-          <div className="blob w-[420px] h-[420px] bg-cyan-800 top-[30%] -right-40 [animation-delay:-6s]" />
-          <div className="blob w-[380px] h-[380px] bg-violet-950 -bottom-28 left-[30%] [animation-delay:-12s]" />
-        </div>
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col taller-texture">{children}</body>
     </html>
   );
 }
