@@ -42,9 +42,11 @@ export default function Navegacion() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a href="#consulta" className="btn-glow hidden sm:inline-flex">
-            <span>Mi equipo</span>
-          </a>
+          <div className="hidden sm:block">
+            <a href="#consulta" className="btn-glow">
+              <span>Mi equipo</span>
+            </a>
+          </div>
           <button
             type="button"
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-slate-100 transition hover:border-cyan-400/50 hover:bg-white/10 md:hidden"
