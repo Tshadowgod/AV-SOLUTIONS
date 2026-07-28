@@ -5,7 +5,7 @@ import { IconoLaptop, IconoMonitor, IconoChat } from "@/components/Iconos";
 import { WHATSAPP_NUMERO } from "@/lib/negocio";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import {
-  MODELOS_COMUNES,
+  MARCAS_COMUNES,
   SERVICIOS_COMUNES,
   ID_MODELO_OTRO,
   ID_MODELO_NO_SE,
@@ -50,11 +50,11 @@ export default function Cotizacion() {
       return;
     }
     if (!modeloSel) {
-      setError("Selecciona el modelo de tu equipo o elige «Otro» / «No sé el modelo».");
+      setError("Selecciona la marca de tu equipo o elige «Otra marca» / «No sé la marca».");
       return;
     }
     if (modeloSel === ID_MODELO_OTRO && !modeloOtro.trim()) {
-      setError("Escribe el modelo de tu equipo en el campo «Otro».");
+      setError("Escribe la marca de tu equipo en el campo «Otra marca».");
       return;
     }
     if (serviciosSel.length === 0) {
@@ -95,7 +95,7 @@ export default function Cotizacion() {
         const mensaje =
           `\u{1F44B} Hola AV SOLUTIONS, quiero una cotización:\n\n` +
           `${emEquipo} Equipo: ${tipo}\n` +
-          `\u{1F3F7}\u{FE0F} Modelo: ${modeloTexto}\n` +
+          `\u{1F3F7}\u{FE0F} Marca: ${modeloTexto}\n` +
           `\u{1F527} Necesito: ${problema}\n` +
           `\u{1F9D1} Mi nombre: ${nombre.trim()}\n` +
           `\u{1F4F1} Mi WhatsApp: ${whatsapp.trim()}`;
@@ -208,16 +208,16 @@ export default function Cotizacion() {
                 </div>
               </div>
 
-              {/* Modelo */}
+              {/* Marca */}
               <div>
                 <label className="mb-2.5 block text-sm font-semibold text-slate-300">
-                  2. ¿Qué modelo es tu equipo?
+                  2. ¿Qué marca es tu equipo?
                 </label>
                 <p className="mb-3 text-xs text-slate-500">
-                  Elige el más parecido. Si no está en la lista, selecciona «Otro» y escríbelo.
+                  Elige la marca (HP, Lenovo, Mac…). Si no está en la lista, selecciona «Otra marca».
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {MODELOS_COMUNES.map((m) => (
+                  {MARCAS_COMUNES.map((m) => (
                     <button
                       key={m.id}
                       type="button"
@@ -235,7 +235,7 @@ export default function Cotizacion() {
                     onClick={() => setModeloSel(ID_MODELO_OTRO)}
                     className={claseChip(modeloSel === ID_MODELO_OTRO)}
                   >
-                    Otro modelo
+                    Otra marca
                   </button>
                   <button
                     type="button"
@@ -245,7 +245,7 @@ export default function Cotizacion() {
                     }}
                     className={claseChip(modeloSel === ID_MODELO_NO_SE)}
                   >
-                    No sé el modelo
+                    No sé la marca
                   </button>
                 </div>
                 {modeloSel === ID_MODELO_OTRO && (
@@ -253,7 +253,7 @@ export default function Cotizacion() {
                     value={modeloOtro}
                     onChange={(e) => setModeloOtro(e.target.value)}
                     type="text"
-                    placeholder="Escribe tu modelo, ej: Toshiba Satellite C55"
+                    placeholder="Escribe la marca, ej: Sony, LG, Gateway…"
                     className={`${inputClase} mt-3`}
                     autoFocus
                   />

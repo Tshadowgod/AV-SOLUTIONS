@@ -1,19 +1,17 @@
-/** Opciones preestablecidas para el formulario de cotización */
+/** Marcas preestablecidas para el formulario de cotización */
 
-export const MODELOS_COMUNES = [
-  { id: "hp-pavilion", etiqueta: "HP Pavilion" },
-  { id: "hp-15", etiqueta: "HP 15 / Laptop HP" },
-  { id: "lenovo-ideapad", etiqueta: "Lenovo IdeaPad" },
-  { id: "lenovo-thinkpad", etiqueta: "Lenovo ThinkPad" },
-  { id: "dell-inspiron", etiqueta: "Dell Inspiron" },
-  { id: "asus-vivobook", etiqueta: "ASUS VivoBook" },
-  { id: "acer-aspire", etiqueta: "Acer Aspire" },
-  { id: "macbook-air", etiqueta: "MacBook Air" },
-  { id: "macbook-pro", etiqueta: "MacBook Pro" },
-  { id: "pc-armada", etiqueta: "PC armada / ensamblada" },
-  { id: "dell-optiplex", etiqueta: "Dell OptiPlex" },
-  { id: "lenovo-thinkcentre", etiqueta: "Lenovo ThinkCentre" },
-  { id: "imac", etiqueta: "iMac / All-in-one" },
+export const MARCAS_COMUNES = [
+  { id: "hp", etiqueta: "HP" },
+  { id: "lenovo", etiqueta: "Lenovo" },
+  { id: "dell", etiqueta: "Dell" },
+  { id: "asus", etiqueta: "ASUS" },
+  { id: "acer", etiqueta: "Acer" },
+  { id: "mac", etiqueta: "Mac / Apple" },
+  { id: "samsung", etiqueta: "Samsung" },
+  { id: "toshiba", etiqueta: "Toshiba" },
+  { id: "msi", etiqueta: "MSI" },
+  { id: "huawei", etiqueta: "Huawei" },
+  { id: "pc-armada", etiqueta: "PC armada / genérica" },
 ] as const;
 
 export const SERVICIOS_COMUNES = [
@@ -90,7 +88,7 @@ export function textoModeloFinal(seleccion: string, otro: string): { modelo: str
   if (seleccion === ID_MODELO_OTRO) {
     return { modelo: otro.trim(), sabe_modelo: true };
   }
-  const preset = MODELOS_COMUNES.find((m) => m.id === seleccion);
+  const preset = MARCAS_COMUNES.find((m) => m.id === seleccion);
   return { modelo: preset?.etiqueta ?? otro.trim(), sabe_modelo: true };
 }
 
