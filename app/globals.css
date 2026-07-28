@@ -5,9 +5,21 @@
   --font-display: var(--font-space-grotesk);
 }
 
+:root {
+  --fondo: #070b14;
+  --fondo-hundido: #0b1020;
+  --texto: #e8ecf4;
+  --texto-suave: #94a3b8;
+  --borde: rgba(255, 255, 255, 0.1);
+  --superficie: rgba(255, 255, 255, 0.045);
+  --violeta: #8b5cf6;
+  --cian: #22d3ee;
+  --verde: #34d399;
+}
+
 body {
-  background: #070b14;
-  color: #e8ecf4;
+  background: var(--fondo);
+  color: var(--texto);
   font-family: var(--font-inter), system-ui, sans-serif;
   overflow-x: hidden;
 }
@@ -16,14 +28,57 @@ h1, h2, h3 {
   font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
-/* ── Blobs de fondo flotantes ── */
+/* Los enlaces «#seccion» no deben quedar tapados por la barra fija de arriba */
+:target,
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Foco visible y consistente para quien navega con teclado */
+:focus-visible {
+  outline: 2px solid var(--cian);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Enlace para saltar directo al contenido (lectores de pantalla y teclado) */
+.saltar-contenido {
+  position: absolute;
+  left: 50%;
+  top: 0.75rem;
+  z-index: 100;
+  translate: -50% -200%;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: var(--violeta);
+  color: #fff;
+  font-weight: 600;
+  transition: translate 0.2s ease;
+}
+.saltar-contenido:focus {
+  translate: -50% 0;
+}
+
+/* ── Fondo: malla tipo placa electrónica + manchas de color flotantes ── */
+.malla-fondo {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+
 .blob {
   position: absolute;
   border-radius: 50%;
   filter: blur(110px);
-  opacity: 0.35;
+  opacity: 0.32;
   animation: flotar 18s ease-in-out infinite alternate;
 }
 @keyframes flotar {
@@ -31,7 +86,15 @@ html { scroll-behavior: smooth; }
   to   { transform: translate(60px, -50px) scale(1.15); }
 }
 
-/* ── Botón con borde de gradiente animado (estilo uiverse.io) ── */
+/* ── Tarjeta de cristal, el bloque base de toda la página ── */
+.tarjeta {
+  border: 1px solid var(--borde);
+  background: var(--superficie);
+  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Botón con borde de gradiente animado ── */
 .btn-glow {
   position: relative;
   display: inline-flex;
@@ -50,11 +113,12 @@ html { scroll-behavior: smooth; }
 .btn-glow > span {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 11px 26px;
   border-radius: 999px;
-  background: #0b1020;
-  color: #e8ecf4;
+  background: var(--fondo-hundido);
+  color: var(--texto);
   font-weight: 600;
   font-size: 0.95rem;
   font-family: var(--font-space-grotesk), sans-serif;
@@ -68,13 +132,74 @@ html { scroll-behavior: smooth; }
 }
 .btn-glow:hover > span { background: transparent; }
 .btn-glow:active { transform: translateY(0) scale(0.98); }
-.btn-glow:disabled { opacity: 0.6; cursor: wait; }
+.btn-glow:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: none; }
+.btn-glow:disabled:hover > span { background: var(--fondo-hundido); }
 
 @keyframes deslizar-borde {
   to { background-position: 300% 0; }
 }
 
-/* ── Línea de luz superior en tarjetas glass ── */
+/* ── Botón secundario ── */
+.btn-plano {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 26px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  color: var(--texto-suave);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.btn-plano:hover {
+  color: var(--texto);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Botón de WhatsApp (verde de la marca, reconocible al instante) ── */
+.btn-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  background: #25d366;
+  color: #04361a;
+  font-weight: 700;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-wa:hover {
+  background: #1ebe5a;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+}
+
+/* ── Campos de formulario ── */
+.campo {
+  width: 100%;
+  border: 1px solid var(--borde);
+  border-radius: 0.75rem;
+  background: var(--fondo-hundido);
+  padding: 0.75rem 1rem;
+  color: var(--texto);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.campo::placeholder { color: #64748b; }
+.campo:focus {
+  border-color: var(--violeta);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+.campo[aria-invalid="true"] {
+  border-color: rgba(248, 113, 113, 0.6);
+}
+.campo:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Línea de luz superior en tarjetas destacadas ── */
 .beam-top {
   position: relative;
   overflow: hidden;
@@ -89,7 +214,7 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, transparent);
 }
 
-/* ── Loader tipo uiverse ── */
+/* ── Cargando ── */
 .loader-ring {
   width: 52px;
   height: 52px;
@@ -101,12 +226,12 @@ html { scroll-behavior: smooth; }
 }
 @keyframes girar { to { transform: rotate(360deg); } }
 
-/* ── Punto que pulsa (badge del hero) ── */
+/* ── Punto que pulsa (indicador de «estamos activos») ── */
 .pulse-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #34d399;
+  background: var(--verde);
   box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
   animation: pulso 2s infinite;
 }
@@ -124,18 +249,34 @@ html { scroll-behavior: smooth; }
   50% { box-shadow: 0 0 0 9px rgba(139, 92, 246, 0.12), 0 0 26px rgba(34, 211, 238, 0.6); }
 }
 
-/* ── Animación de aparición ── */
-.aparecer {
-  animation: aparecer-arriba 0.45s ease;
-}
+/* ── Apariciones y avisos ── */
+.aparecer { animation: aparecer-arriba 0.45s ease; }
 @keyframes aparecer-arriba {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Sacudida para errores ── */
 .sacudir { animation: sacudir 0.4s ease; }
 @keyframes sacudir {
   20%, 60% { transform: translateX(-6px); }
   40%, 80% { transform: translateX(6px); }
+}
+
+/* ── Preguntas frecuentes (acordeón nativo, sin JavaScript) ── */
+.faq summary { list-style: none; cursor: pointer; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary .chevron { transition: transform 0.25s ease; }
+.faq details[open] summary .chevron { transform: rotate(180deg); }
+
+/* ── Quien pide menos movimiento, recibe menos movimiento ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .blob { animation: none; }
 }
