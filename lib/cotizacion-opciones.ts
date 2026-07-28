@@ -94,17 +94,23 @@ export function textoModeloFinal(seleccion: string, otro: string): { modelo: str
   return { modelo: preset?.etiqueta ?? otro.trim(), sabe_modelo: true };
 }
 
-export function textoServicioFinal(seleccion: string, otro: string, detalleExtra: string): string {
-  let base = "";
-  if (seleccion === ID_SERVICIO_OTRO) {
-    base = otro.trim();
-  } else {
-    const preset = SERVICIOS_COMUNES.find((s) => s.id === seleccion);
-    base = preset ? `${preset.etiqueta} — ${preset.detalle}` : otro.trim();
+export function textoServicioFinal(selecciones: string[], otro: string, detalleExtra: string): string {
+  const partes: string[] = [];
+
+  for (const id of selecciones) {
+    if (id === ID_SERVICIO_OTRO) {
+      const texto = otro.trim();
+      if (texto) partes.push(texto);
+      continue;
+    }
+    const preset = SERVICIOS_COMUNES.find((s) => s.id === id);
+    if (preset) partes.push(preset.etiqueta);
   }
+
+  let base = partes.join(" · ");
   const extra = detalleExtra.trim();
   if (extra) {
-    return base ? `${base}. Detalle: ${extra}` : extra;
+    base = base ? `${base}. Detalle: ${extra}` : extra;
   }
   return base;
 }

@@ -31,7 +31,7 @@ export default function Cotizacion() {
   const [tipo, setTipo] = useState("");
   const [modeloSel, setModeloSel] = useState("");
   const [modeloOtro, setModeloOtro] = useState("");
-  const [servicioSel, setServicioSel] = useState("");
+  const [serviciosSel, setServiciosSel] = useState<string[]>([]);
   const [servicioOtro, setServicioOtro] = useState("");
   const [detalleExtra, setDetalleExtra] = useState("");
   const [nombre, setNombre] = useState("");
@@ -57,17 +57,23 @@ export default function Cotizacion() {
       setError("Escribe el modelo de tu equipo en el campo «Otro».");
       return;
     }
-    if (!servicioSel) {
-      setError("Selecciona qué necesitas o elige «Otro» para describirlo.");
+    if (serviciosSel.length === 0) {
+      setError("Selecciona al menos un servicio o elige «Otro» para describirlo.");
       return;
     }
-    if (servicioSel === ID_SERVICIO_OTRO && !servicioOtro.trim()) {
+    const soloOtro =
+      serviciosSel.length === 1 && serviciosSel[0] === ID_SERVICIO_OTRO;
+    if (soloOtro && !servicioOtro.trim()) {
       setError("Describe qué necesitas en el campo «Otro».");
       return;
     }
 
     const { modelo, sabe_modelo } = textoModeloFinal(modeloSel, modeloOtro);
-    const problema = textoServicioFinal(servicioSel, servicioOtro, detalleExtra);
+    const problema = textoServicioFinal(serviciosSel, servicioOtro, detalleExtra);
+    if (!problema.trim()) {
+      setError("Indica qué necesitas o escribe un detalle en «Otro».");
+      return;
+    }
 
     setEnviando(true);
     try {
@@ -112,7 +118,7 @@ export default function Cotizacion() {
     setTipo("");
     setModeloSel("");
     setModeloOtro("");
-    setServicioSel("");
+    setServiciosSel([]);
     setServicioOtro("");
     setDetalleExtra("");
     setNombre("");
@@ -120,6 +126,20 @@ export default function Cotizacion() {
     setEnviada(false);
     setError("");
   }
+
+  function toggleServicio(id: string) {
+    setServiciosSel((prev) => {
+      const activo = prev.includes(id);
+      if (activo) {
+        if (id === ID_SERVICIO_OTRO) setServicioOtro("");
+        return prev.filter((x) => x !== id);
+      }
+      return [...prev, id];
+    });
+  }
+
+  const tienePresets = serviciosSel.some((id) => id !== ID_SERVICIO_OTRO);
+  const tieneOtro = serviciosSel.includes(ID_SERVICIO_OTRO);
 
   const inputClase =
     "w-full rounded-xl border border-white/10 bg-[#0b1020] px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.18)]";
@@ -246,42 +266,47 @@ export default function Cotizacion() {
                   3. ¿Qué necesitas?
                 </label>
                 <p className="mb-3 text-xs text-slate-500">
-                  Selecciona el servicio que buscas. Si es otra cosa, elige «Otro» y descríbelo.
+                  Puedes elegir varias opciones. Si necesitas algo más, marca «Otro» y descríbelo.
+                  {serviciosSel.length > 0 && (
+                    <span className="ml-1 font-medium text-violet-300">
+                      ({serviciosSel.length} seleccionada{serviciosSel.length !== 1 ? "s" : ""})
+                    </span>
+                  )}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {SERVICIOS_COMUNES.map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => {
-                        setServicioSel(s.id);
-                        setServicioOtro("");
-                      }}
-                      className={claseChip(servicioSel === s.id)}
+                      onClick={() => toggleServicio(s.id)}
+                      className={claseChip(serviciosSel.includes(s.id))}
                       title={s.detalle}
+                      aria-pressed={serviciosSel.includes(s.id)}
                     >
+                      {serviciosSel.includes(s.id) && <span className="mr-1">✓</span>}
                       {s.etiqueta}
                     </button>
                   ))}
                   <button
                     type="button"
-                    onClick={() => setServicioSel(ID_SERVICIO_OTRO)}
-                    className={claseChip(servicioSel === ID_SERVICIO_OTRO)}
+                    onClick={() => toggleServicio(ID_SERVICIO_OTRO)}
+                    className={claseChip(tieneOtro)}
+                    aria-pressed={tieneOtro}
                   >
+                    {tieneOtro && <span className="mr-1">✓</span>}
                     Otro
                   </button>
                 </div>
-                {servicioSel === ID_SERVICIO_OTRO && (
+                {tieneOtro && (
                   <textarea
                     value={servicioOtro}
                     onChange={(e) => setServicioOtro(e.target.value)}
                     rows={3}
-                    placeholder="Describe qué le pasa a tu equipo o qué necesitas…"
+                    placeholder="Describe qué más necesitas…"
                     className={`${inputClase} mt-3 resize-y`}
-                    autoFocus
                   />
                 )}
-                {servicioSel && servicioSel !== ID_SERVICIO_OTRO && (
+                {tienePresets && (
                   <textarea
                     value={detalleExtra}
                     onChange={(e) => setDetalleExtra(e.target.value)}
