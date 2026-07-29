@@ -24,6 +24,18 @@ clave ni servicio externo.
 - Ahí ves las **órdenes** y las **cotizaciones recibidas**.
 - Botón **«🔄 Convertir a orden»**: pasa una cotización a órdenes registradas.
 
+## 🏠 Control de alquileres y luz (`/alquileres`)
+
+Misma contraseña que el admin. Ahí puedes:
+
+1. Registrar **inquilinos** (unidad, alquiler mensual, n.º de medidor y lectura anterior).
+2. Cuando llegue la **factura de luz**, poner la lectura actual → el sistema resta
+   `lectura actual − lectura anterior` y deja la actual como nueva lectura anterior.
+3. Marcar el **alquiler del mes** como pagado o pendiente.
+
+Las tablas (`inquilinos`, `lecturas_luz`, `pagos_alquiler`) se crean solas al
+usar el panel, o con `node --env-file=.env.local scripts/init-db.mjs`.
+
 ## 🗄️ Datos técnicos
 
 - **Base de datos:** Neon PostgreSQL (tablas `ordenes` y `cotizaciones`).

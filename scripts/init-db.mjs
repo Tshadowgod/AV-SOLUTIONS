@@ -56,4 +56,64 @@ if (total === 0) {
   console.log(`ℹ️  La tabla ya tiene ${total} órdenes — no se cargaron ejemplos`);
 }
 
+await sql`
+  CREATE TABLE IF NOT EXISTS inquilinos (
+    id               SERIAL PRIMARY KEY,
+    nombre           TEXT NOT NULL,
+    unidad           TEXT NOT NULL DEFAULT '',
+    telefono         TEXT NOT NULL DEFAULT '',
+    alquiler_mensual NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    medidor          TEXT NOT NULL DEFAULT '',
+    lectura_anterior NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    activo           BOOLEAN NOT NULL DEFAULT TRUE,
+    creado           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )
+`;
+console.log("✅ Tabla 'inquilinos' lista");
+
+await sql`
+  CREATE TABLE IF NOT EXISTS lecturas_luz (
+    id               SERIAL PRIMARY KEY,
+    inquilino_id     INTEGER NOT NULL REFERENCES inquilinos(id) ON DELETE CASCADE,
+    periodo          TEXT NOT NULL,
+    lectura_anterior NUMERIC(12, 2) NOT NULL,
+    lectura_actual   NUMERIC(12, 2) NOT NULL,
+    consumo          NUMERIC(12, 2) NOT NULL,
+    precio_kwh       NUMERIC(12, 4) NOT NULL DEFAULT 0,
+    monto            NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    nota             TEXT NOT NULL DEFAULT '',
+    creado           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (inquilino_id, periodo)
+  )
+`;
+console.log("✅ Tabla 'lecturas_luz' lista");
+
+await sql`
+  CREATE TABLE IF NOT EXISTS pagos_alquiler (
+    id           SERIAL PRIMARY KEY,
+    inquilino_id INTEGER NOT NULL REFERENCES inquilinos(id) ON DELETE CASCADE,
+    periodo      TEXT NOT NULL,
+    monto        NUMERIC(12, 2) NOT NULL,
+    pagado       BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_pago   TIMESTAMPTZ,
+    nota         TEXT NOT NULL DEFAULT '',
+    creado       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (inquilino_id, periodo)
+  )
+`;
+console.log("✅ Tabla 'pagos_alquiler' lista");
+
+const [{ totalInq }] = await sql`SELECT COUNT(*)::int AS "totalInq" FROM inquilinos`;
+if (totalInq === 0) {
+  await sql`
+    INSERT INTO inquilinos (nombre, unidad, telefono, alquiler_mensual, medidor, lectura_anterior) VALUES
+    ('Roberto Vargas', 'Depto 1A', '70011111', 1500, 'MED-101', 12450),
+    ('Lucía Quispe', 'Depto 1B', '70022222', 1400, 'MED-102', 9870),
+    ('Pedro Rojas', 'Depto 2A', '70033333', 1600, 'MED-201', 15200)
+  `;
+  console.log("✅ Datos de ejemplo de alquileres cargados (3 inquilinos)");
+} else {
+  console.log(`ℹ️  Ya hay ${totalInq} inquilinos — no se cargaron ejemplos`);
+}
+
 console.log("🎉 Base de datos lista");
