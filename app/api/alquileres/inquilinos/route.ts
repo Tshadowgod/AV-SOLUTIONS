@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { sql } from "@/lib/db";
 import { estaAutorizado } from "@/lib/auth";
 import { asegurarTablasAlquileres } from "@/lib/alquileres-db";
+import {
+  usarStoreLocal,
+  listarInquilinosLocal,
+  crearInquilinoLocal,
+} from "@/lib/alquileres-local";
 
 export async function GET(request: NextRequest) {
   if (!estaAutorizado(request)) {
@@ -9,6 +14,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (usarStoreLocal()) {
+      return NextResponse.json(listarInquilinosLocal());
+    }
     await asegurarTablasAlquileres();
     const filas = await sql`
       SELECT
@@ -37,19 +45,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
   }
 
+  const payload = {
+    nombre: String(datos.nombre).trim(),
+    unidad: String(datos.unidad ?? "").trim(),
+    telefono: String(datos.telefono ?? "").trim(),
+    alquiler_mensual: Number(datos.alquiler_mensual) || 0,
+    medidor: String(datos.medidor ?? "").trim(),
+    lectura_anterior: Number(datos.lectura_anterior) || 0,
+    activo: datos.activo !== false,
+  };
+
   try {
+    if (usarStoreLocal()) {
+      return NextResponse.json(crearInquilinoLocal(payload), { status: 201 });
+    }
     await asegurarTablasAlquileres();
     const filas = await sql`
       INSERT INTO inquilinos (
         nombre, unidad, telefono, alquiler_mensual, medidor, lectura_anterior, activo
       ) VALUES (
-        ${String(datos.nombre).trim()},
-        ${String(datos.unidad ?? "").trim()},
-        ${String(datos.telefono ?? "").trim()},
-        ${Number(datos.alquiler_mensual) || 0},
-        ${String(datos.medidor ?? "").trim()},
-        ${Number(datos.lectura_anterior) || 0},
-        ${datos.activo !== false}
+        ${payload.nombre},
+        ${payload.unidad},
+        ${payload.telefono},
+        ${payload.alquiler_mensual},
+        ${payload.medidor},
+        ${payload.lectura_anterior},
+        ${payload.activo}
       )
       RETURNING
         id, nombre, unidad, telefono,

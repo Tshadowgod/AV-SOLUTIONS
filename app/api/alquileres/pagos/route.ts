@@ -3,6 +3,12 @@ import { sql } from "@/lib/db";
 import { estaAutorizado } from "@/lib/auth";
 import { asegurarTablasAlquileres } from "@/lib/alquileres-db";
 import { periodoActual } from "@/lib/alquileres";
+import {
+  usarStoreLocal,
+  listarPagosLocal,
+  registrarPagoLocal,
+  listarInquilinosLocal,
+} from "@/lib/alquileres-local";
 
 export async function GET(request: NextRequest) {
   if (!estaAutorizado(request)) {
@@ -12,6 +18,9 @@ export async function GET(request: NextRequest) {
   const periodo = request.nextUrl.searchParams.get("periodo") || periodoActual();
 
   try {
+    if (usarStoreLocal()) {
+      return NextResponse.json(listarPagosLocal(periodo));
+    }
     await asegurarTablasAlquileres();
     const filas = await sql`
       SELECT
@@ -31,7 +40,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/** Crea o actualiza el pago de alquiler del periodo. */
 export async function POST(request: NextRequest) {
   if (!estaAutorizado(request)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -48,6 +56,26 @@ export async function POST(request: NextRequest) {
   const nota = String(datos.nota ?? "").trim();
 
   try {
+    if (usarStoreLocal()) {
+      const inqs = listarInquilinosLocal();
+      const inq = inqs.find((i) => i.id === inquilinoId);
+      if (!inq) {
+        return NextResponse.json({ error: "Inquilino no encontrado" }, { status: 404 });
+      }
+      const monto =
+        datos.monto !== undefined && datos.monto !== null
+          ? Number(datos.monto)
+          : Number(inq.alquiler_mensual) || 0;
+      const pago = registrarPagoLocal({
+        inquilino_id: inquilinoId,
+        periodo,
+        monto,
+        pagado,
+        nota,
+      });
+      return NextResponse.json(pago, { status: 201 });
+    }
+
     await asegurarTablasAlquileres();
 
     const inquilinos = await sql`

@@ -3,6 +3,12 @@ import { sql } from "@/lib/db";
 import { estaAutorizado } from "@/lib/auth";
 import { asegurarTablasAlquileres } from "@/lib/alquileres-db";
 import { periodoActual } from "@/lib/alquileres";
+import {
+  usarStoreLocal,
+  listarLecturasLocal,
+  registrarLecturaLocal,
+  borrarLecturaLocal,
+} from "@/lib/alquileres-local";
 
 export async function GET(request: NextRequest) {
   if (!estaAutorizado(request)) {
@@ -12,6 +18,9 @@ export async function GET(request: NextRequest) {
   const periodo = request.nextUrl.searchParams.get("periodo") || periodoActual();
 
   try {
+    if (usarStoreLocal()) {
+      return NextResponse.json(listarLecturasLocal(periodo));
+    }
     await asegurarTablasAlquileres();
     const filas = await sql`
       SELECT
@@ -35,11 +44,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * Registra la lectura de la factura:
- * consumo = lectura_actual − lectura_anterior del inquilino,
- * y actualiza lectura_anterior = lectura_actual.
- */
 export async function POST(request: NextRequest) {
   if (!estaAutorizado(request)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -61,6 +65,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (usarStoreLocal()) {
+      const result = registrarLecturaLocal({
+        inquilino_id: inquilinoId,
+        periodo,
+        lectura_actual: lecturaActual,
+        precio_kwh: precioKwh,
+        nota,
+      });
+      if (!result.ok) {
+        return NextResponse.json({ error: result.error }, { status: result.status });
+      }
+      return NextResponse.json(result.lectura, { status: 201 });
+    }
+
     await asegurarTablasAlquileres();
 
     const inquilinos = await sql`
@@ -133,6 +151,13 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    if (usarStoreLocal()) {
+      if (!borrarLecturaLocal(id)) {
+        return NextResponse.json({ error: "Lectura no encontrada" }, { status: 404 });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
     await asegurarTablasAlquileres();
     const filas = await sql`
       DELETE FROM lecturas_luz WHERE id = ${id} RETURNING id

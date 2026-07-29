@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { sql } from "@/lib/db";
 import { estaAutorizado } from "@/lib/auth";
 import { asegurarTablasAlquileres } from "@/lib/alquileres-db";
+import {
+  usarStoreLocal,
+  actualizarInquilinoLocal,
+  borrarInquilinoLocal,
+} from "@/lib/alquileres-local";
 
 export async function PUT(
   request: NextRequest,
@@ -23,6 +28,25 @@ export async function PUT(
   }
 
   try {
+    if (usarStoreLocal()) {
+      const patch: Record<string, unknown> = {};
+      if (datos.nombre !== undefined) patch.nombre = String(datos.nombre).trim();
+      if (datos.unidad !== undefined) patch.unidad = String(datos.unidad).trim();
+      if (datos.telefono !== undefined) patch.telefono = String(datos.telefono).trim();
+      if (datos.alquiler_mensual !== undefined)
+        patch.alquiler_mensual = Number(datos.alquiler_mensual);
+      if (datos.medidor !== undefined) patch.medidor = String(datos.medidor).trim();
+      if (datos.lectura_anterior !== undefined)
+        patch.lectura_anterior = Number(datos.lectura_anterior);
+      if (typeof datos.activo === "boolean") patch.activo = datos.activo;
+
+      const fila = actualizarInquilinoLocal(id, patch);
+      if (!fila) {
+        return NextResponse.json({ error: "Inquilino no encontrado" }, { status: 404 });
+      }
+      return NextResponse.json(fila);
+    }
+
     await asegurarTablasAlquileres();
     const filas = await sql`
       UPDATE inquilinos SET
@@ -67,6 +91,13 @@ export async function DELETE(
   }
 
   try {
+    if (usarStoreLocal()) {
+      if (!borrarInquilinoLocal(id)) {
+        return NextResponse.json({ error: "Inquilino no encontrado" }, { status: 404 });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
     await asegurarTablasAlquileres();
     const filas = await sql`
       DELETE FROM inquilinos WHERE id = ${id} RETURNING id
